@@ -8,16 +8,18 @@ separador: .asciiz "-"                                                   # separ
 
 banner: .asciiz "GGJR-shell>> "                                         # Banner da equipe (shell)
 
-input: .space 1024                                                      # espaco para o input do usuario
-output: .space 1024
-
 # definicao dos comandos
 help: .asciiz "help"
+ad_morador: .asciiz "ad_morador"
 
 
 # textos de saida de comandos
 cmd_invalido: .asciiz "Comando invalido\n"
 help_out: .asciiz "Esta eh a lista dos comandos disponiveis\n    cmd_1. ad_morador-<ap>-<morador>: adiciona um morador ao apartamento\n"
+
+
+input: .space 1024                                                      # espaco para o input do usuario
+output: .space 1024
 
 
 .text
@@ -94,7 +96,9 @@ backspace:                                                              # execut
     
 process_command:                                                        # funcao que processa o comando do usuario
     la $t0, input                                                       # carrega a string input
-    add $t1, $t1, $zero                                                 # tamanho do nome do comando
+    lb $t1, 0($t0)
+    beqz $t1, end_process
+    add $t1, $zero, $zero                                               # tamanho do nome do comando
     la $t3, separador                                                   # carrega o char separador
     prcmd_loop:                                                         # loop que encontra o nome do comando
         beqz $t2, cmd_cmp                                               # se chegar no fim da string, desvia para o comparador de comando
@@ -104,19 +108,72 @@ process_command:                                                        # funcao
         lb $t2, 0($t0)                                                  # carrega o byte atual de input em t2
         j prcmd_loop                                                    # iteracao do loop
     cmd_cmp:                                                            # encontra e direciona o comando a sua determinada funcao (switch-case)
+
+
         la $a0, help                                                    # carrega o nome de comando help em a0
         la $a1, input                                                   # carrega a string input em a1
-        add $a2, $a2, $t1                                               # carrega o tamanho do nome do comando
+        add $a2, $zero, $t1                                               # carrega o tamanho do nome do comando
         jal strncmp                                                     # chama a funcao strncmp (compara o numero n de bytes de duas strings)
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
+
+        la $a0, ad_morador
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
         j start                                                         # inicio do programa, pronto para aguardar um novo comando
 
 
+get_fn_option:
+    la $t0, input
+    la $t1, separador
+    lb $t1, 0($t1)
+    add $t2, $a0, $zero
+
+    find_separador:
+        lb $t3, 0($t0)
+        addi $t0, $t0, 1
+        beqz $t3, abort_get_fn_op
+        bne $t3, $t1, find_separador
+        addi $t2, $t2, -1
+        beqz $t2, store_option
+        j find_separador
+    
+    store_option:
+        add $t2, $t0, $zero
+        find_option_end:
+            lb $t3, 0($t2)
+            addi $t2, $t2, 1
+            beqz $t3, store_option_end
+            bne $t3, $t1, find_option_end
+            addi $t2, $t2, -1
+        
+        store_option_end:
+            sub $t2, $t2, $t0
+            add $a0, $zero, $t2
+            addi $v0, $zero, 9
+            syscall
+            add $a2, $zero, $t2
+            add $a1, $zero, $t0
+            add $a0, $zero, $v0
+            addi $sp, $sp, -4
+            sw $ra, 0($sp)
+            jal memcpy
+            lw $ra, 0($sp)
+            addi $sp, $sp, 4
+            jr $ra
+        
+    abort_get_fn_op:
+        jr $ra
+
+
 
 help_fn:                                                                # comando help
+    addi $a0, $zero, 1  # pega a opcao da posicao 1 
+    jal get_fn_option   # executa a funcao
+    add $t8, $zero, $v0 # escreve o endereco da opcao em $t8
+    addi $a0, $zero, 2
+    jal get_fn_option
+    add $t9, $zero, $v0
     la $a0, help_out
     jal print_str
 
@@ -127,8 +184,6 @@ cmd_invalido_fn:                                                        # comand
     jal print_str
 
     j start
-
-
 
 
 
@@ -192,3 +247,21 @@ strncmp:                                # compara duas strings at? o caracter nu
     
     end_strncmp:
         jr $ra
+
+
+memcpy:                                 # copia a quantidade num de bytes de um endere?o de memoria para outro (sem procurar por \0)
+    add $t0, $zero, $a0                 # escreve o endere?o destination para t0
+    add $t1, $zero, $a1                 # escreve o endere?o source para t1
+    add $t2, $zero, $zero               # escreve 0 em t2 (i)
+    
+    memcpy_loop:                        # loop principal
+        bge $t2, $a2, end_memcpy        # caso i seja igual a num, encerra a fun??o
+        lb $t3, 0($t1)                  # carrega o byte de source em t3
+        sb $t3, 0($t0)                  # grava o byte de t3 em destination
+        addi $t0, $t0, 1                # incrementa destination
+        addi $t1, $t1, 1                # incrementa source
+        addi $t2, $t2, 1                # incrementa i
+        j memcpy_loop                   # iteracao
+        
+    end_memcpy:                         # fim da fun??o
+        jr $ra                          # retorno
