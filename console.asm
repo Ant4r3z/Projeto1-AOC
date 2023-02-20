@@ -149,9 +149,11 @@ get_fn_option:
         
         store_option_end:
             sub $t2, $t2, $t0
+            addi $t2, $t2, 1
             add $a0, $zero, $t2
             addi $v0, $zero, 9
             syscall
+            addi $t2, $t2, -1
             add $a2, $zero, $t2
             add $a1, $zero, $t0
             add $a0, $zero, $v0
@@ -264,4 +266,6 @@ memcpy:                                 # copia a quantidade num de bytes de um 
         j memcpy_loop                   # iteracao
         
     end_memcpy:                         # fim da fun??o
+        addi $t0, $t0, 1
+        sb $zero, 0($t0)
         jr $ra                          # retorno
