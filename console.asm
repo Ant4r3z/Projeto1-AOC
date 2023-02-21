@@ -179,6 +179,10 @@ help_fn:                                                                # comand
     la $a0, help_out
     jal print_str
 
+    add $a0, $zero, $t8
+    jal free
+    add $a0, $zero, $t9
+    jal free
     j start
 
 cmd_invalido_fn:                                                        # comando invalido
@@ -269,3 +273,13 @@ memcpy:                                 # copia a quantidade num de bytes de um 
         addi $t0, $t0, 1
         sb $zero, 0($t0)
         jr $ra                          # retorno
+
+free: # a0: endereco 
+    lb $t0, 0($a0)
+    sb $zero, 0($a0)
+    addi $a0, $a0, 1
+    beqz $t0, end_free
+    j free
+
+    end_free:
+        jr $ra
