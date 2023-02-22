@@ -27,7 +27,6 @@ set_building:
     allocate_apartment:
     
         # set apartment number in building array
-        li $t7, 0			# apartment number is first 4 bytes of apartment
         add $t8, $t5, $t2		# add starting apartment number to apartment number counter
         
         sw $t8, ($t6)			# store apartment number in building array
