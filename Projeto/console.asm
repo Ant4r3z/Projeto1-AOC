@@ -3,8 +3,10 @@
 
 .data
 
-next_line: .asciiz "\n"                                                  # nova linha
-separador: .asciiz "-"                                                   # separador de comando
+building: .space 1440 							                        # 40 apartamentos * 36 bytes por apartamento
+
+next_line: .asciiz "\n"                                                 # nova linha
+separador: .asciiz "-"                                                  # separador de comando
 
 banner: .asciiz "GGJR-shell>> "                                         # Banner da equipe (shell)
 
@@ -26,6 +28,10 @@ output: .space 1024
 .text
 
 main:
+
+    la $a0, building							                        # carrega em $a0 o endereço para o building
+    jal set_building							                        # inicializa a função de preencher os apartamentos    
+
     lui $s0, 0xFFFF                                                     # carrega o endereco base dos registradores do controle mmio em s0
     la $s1, input                                                       # carrega o endereco base do input em s1
     j start
