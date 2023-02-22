@@ -58,8 +58,8 @@ mmio_loop:                                                              # loop d
     j mmio_loop                                                         # reinicia o loop do mmio
 
 mmio_show_char:                                                         # funcao que imprime um character na tela mmio
-    lw $t0, 8($s0)                                                      # t0 = transmitter ready
-    beqz $t0, mmio_show_char                                            # caso transmitter nao esteja pronto, volta ao inicio da funcao
+    lw $s3, 8($s0)                                                      # t0 = transmitter ready
+    beqz $s3, mmio_show_char                                            # caso transmitter nao esteja pronto, volta ao inicio da funcao
     sw $s2, 12($s0)                                                     # escreve o dado recebido do teclado em transmitter data
     jr $ra                                                              # return
 
@@ -174,19 +174,19 @@ get_fn_option:
 help_fn:                                                                # comando help
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
     jal get_fn_option   # executa a funcao
-    add $t8, $zero, $v0 # escreve o endereco da opcao em $t8
+    add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
     addi $a0, $zero, 2
     jal get_fn_option
-    add $t9, $zero, $v0
+    add $t1, $zero, $v0
 
     bltz $v0, miss_options_fn
 
     la $a0, help_out
     jal print_str
 
-    add $a0, $zero, $t8
+    add $a0, $zero, $t0
     jal free
-    add $a0, $zero, $t9
+    add $a0, $zero, $t1
     jal free
     j start
 
