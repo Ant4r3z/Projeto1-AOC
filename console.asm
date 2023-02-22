@@ -15,6 +15,7 @@ ad_morador: .asciiz "ad_morador"
 
 # textos de saida de comandos
 cmd_invalido: .asciiz "Comando invalido\n"
+miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
 help_out: .asciiz "Esta eh a lista dos comandos disponiveis\n    cmd_1. ad_morador-<ap>-<morador>: adiciona um morador ao apartamento\n"
 
 
@@ -165,6 +166,7 @@ get_fn_option:
             jr $ra
         
     abort_get_fn_op:
+        li $v0, -1
         jr $ra
 
 
@@ -176,6 +178,9 @@ help_fn:                                                                # comand
     addi $a0, $zero, 2
     jal get_fn_option
     add $t9, $zero, $v0
+
+    bltz $v0, miss_options_fn
+
     la $a0, help_out
     jal print_str
 
@@ -191,6 +196,11 @@ cmd_invalido_fn:                                                        # comand
 
     j start
 
+miss_options_fn:
+    la $a0, miss_options
+    jal print_str
+
+    j start
 
 
 
@@ -283,3 +293,4 @@ free: # a0: endereco
 
     end_free:
         jr $ra
+        
