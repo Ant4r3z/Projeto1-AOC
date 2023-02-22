@@ -1,3 +1,17 @@
+# [BCC 2022.1] Arquitetura e Organização de Computadores
+# Lista de exercícios - Projeto 01
+# Questão 01
+# Arquitetantes:
+# - Gabriel Santos
+# - Gilvaney Leandro
+# - Joyce Mirelle
+# - Ronaldo Rodrigues
+
+#Implemente um código fica constantemente tentando ler um caractere do KEYBOARD MMIO e, 
+#sempre que receber um, imprime o mesmo caracter imediatamente no DISPLAY MMIO. 
+#A leitura do Apêndice A8 é fundamental para a implementação da questão. Utilize a abordagem sem 
+#interrupção (“polling”) por simplicidade. 
+
 .data
 
 b1: .byte
