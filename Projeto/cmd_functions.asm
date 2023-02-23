@@ -8,15 +8,26 @@ help_fn:                                                                # comand
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
     jal get_fn_option   # executa a funcao
     add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
-    addi $a0, $zero, 2
-    jal get_fn_option
-    add $t1, $zero, $v0
+
 
     la $a0, help_out
     jal print_str
 
     add $a0, $zero, $t0
+    jal str_to_int
+
+
+
+    add $a0, $zero, $v0
+    jal get_ap_index
+
+    add $t1, $zero, $v0
+
+    addi		$v0, $0, 1		# system call #1 - print int
+    add		$a0, $0, $t1
+    syscall						# execute
+
+    add $a0, $zero, $t0
     jal free
-    add $a0, $zero, $t1
-    jal free
+    
     j start

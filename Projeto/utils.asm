@@ -1,7 +1,42 @@
+.data
+.macro stack_reg
+    addi $sp, $sp, -48
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $a0, 32($sp)
+    sw $a1, 36($sp)
+    sw $a2, 40($sp)
+    sw $a3, 44($sp)
+.end_macro
+
+.macro unstack_reg
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $a0, 32($sp)
+    lw $a1, 36($sp)
+    lw $a2, 40($sp)
+    lw $a3, 44($sp)
+    addi $sp, $sp, 48
+.end_macro
+.globl strncmp, memcpy, get_ap_index, str_to_int
+
+
 .text
-.globl strncmp, memcpy
 
 strcmp:                                 # compara duas strings
+    stack_reg
     add $t0, $zero, $a0                 # escreve o endere?o da str1 para t0
     add $t1, $zero, $a1                 # escreve o endere?o da str2 para t1
     
@@ -19,10 +54,12 @@ strcmp:                                 # compara duas strings
 	    j strcmp_loop                   # iteracao
 	
     end_strcmp:                         # fim da fun??o
+    unstack_reg
         jr $ra                          # retorno
 
 
 strcpy:                                 # copia uma string
+    stack_reg
     add $t0, $a1, $zero                 # escreve o endere?o source para t0
     add $t1, $a0, $zero                 # escreve o endere?o destination para t1
 
@@ -35,10 +72,12 @@ strcpy:                                 # copia uma string
         j strcpy_loop                   # reinicia o loop
 
     end_strcpy:                         # fim da fun??o
+    unstack_reg
         jr $ra                          # retorno
 
 
 strncmp:                                # compara duas strings at? o caracter num
+stack_reg
     add $t0, $zero, $a0                 
     add $t1, $zero, $a1                 
     add $t4, $zero, $zero               
@@ -59,10 +98,12 @@ strncmp:                                # compara duas strings at? o caracter nu
 	j strncmp_loop                      
     
     end_strncmp:
+        unstack_reg
         jr $ra
 
 
 memcpy:                                 # copia a quantidade num de bytes de um endere?o de memoria para outro (sem procurar por \0)
+    stack_reg
     add $t0, $zero, $a0                 # escreve o endere?o destination para t0
     add $t1, $zero, $a1                 # escreve o endere?o source para t1
     add $t2, $zero, $zero               # escreve 0 em t2 (i)
@@ -79,4 +120,51 @@ memcpy:                                 # copia a quantidade num de bytes de um 
     end_memcpy:                         # fim da fun??o
         addi $t0, $t0, 1
         sb $zero, 0($t0)
+        unstack_reg
         jr $ra                          # retorno
+
+
+get_ap_index: # $a0: numero do apartamento (int)
+    stack_reg
+    add $t0, $zero, $a0
+    li $t1, 100
+    div		$t0, $t1			# $t0 / $t1
+    mflo	$t2					# $t2 = floor($t0 / $t1) 
+    mfhi	$t3					# $t3 = $t0 % $t1 
+    
+    addi $t2, $t2, -1
+    addi $t4, $zero, 4
+    mult	$t2, $t4			# $t2 * $t1 = Hi and Lo registers
+    mflo	$t2					# copy Lo to $t2
+    add $v0, $t2, $t3
+    unstack_reg
+    jr $ra
+
+
+
+str_to_int:
+    stack_reg
+    li $t0, 0
+    li $t4, 48
+    li $t5, 57
+    li $t6, 10
+    loop_str_int:
+        lb $t1, 0($a0)
+        beq $t1, $zero, done_str_int
+        beq $t1, $t6, done_str_int
+        blt $t1, $t4, error_str_int
+        bgt $t1, $t5, error_str_int
+        sub $t1, $t1, $t4
+        mul $t0, $t0, 10
+        add $t0, $t0, $t1
+        addi $a0, $a0, 1
+        j loop_str_int
+    error_str_int:
+        li $v0, -1
+        unstack_reg
+        jr $ra
+    done_str_int:
+        add $v0, $zero, $t0
+        unstack_reg
+        jr $ra
+

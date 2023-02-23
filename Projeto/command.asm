@@ -1,4 +1,36 @@
 .data
+.macro stack_reg
+    addi $sp, $sp, -48
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $a0, 32($sp)
+    sw $a1, 36($sp)
+    sw $a2, 40($sp)
+    sw $a3, 44($sp)
+.end_macro
+
+.macro unstack_reg
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $a0, 32($sp)
+    lw $a1, 36($sp)
+    lw $a2, 40($sp)
+    lw $a3, 44($sp)
+    addi $sp, $sp, 48
+.end_macro
+
 
 
 # definicao dos comandos
@@ -14,6 +46,7 @@ miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
 .globl get_fn_option, free, process_command
 
 process_command:                                                        # funcao que processa o comando do usuario
+stack_reg
     la $t0, input                                                       # carrega a string input
     lb $t1, 0($t0)
     beqz $t1, end_process
@@ -39,11 +72,13 @@ process_command:                                                        # funcao
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
+        unstack_reg
         j start                                                         # inicio do programa, pronto para aguardar um novo comando
 
 
 
 get_fn_option:
+stack_reg
     la $t0, input
     la $t1, separador
     lb $t1, 0($t1)
@@ -82,9 +117,11 @@ get_fn_option:
             jal memcpy
             lw $ra, 0($sp)
             addi $sp, $sp, 4
+            unstack_reg
             jr $ra
         
     abort_get_fn_op:
+        unstack_reg
         j miss_options_fn
         jr $ra
 
@@ -104,6 +141,7 @@ miss_options_fn:
 
 
 free: # a0: endereco 
+
     lb $t0, 0($a0)
     sb $zero, 0($a0)
     addi $a0, $a0, 1
