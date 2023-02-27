@@ -37,6 +37,8 @@
 help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
 
+ad_auto: .asciiz "ad_auto"
+
 
 # textos de saida de comandos
 cmd_invalido: .asciiz "Comando invalido\n"
@@ -68,7 +70,9 @@ stack_reg
         jal strncmp                                                     # chama a funcao strncmp (compara o numero n de bytes de duas strings)
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
 
-        la $a0, ad_morador
+        la $a0, ad_auto
+        jal strncmp
+        beqz $v0, ad_auto_fn
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
@@ -108,6 +112,7 @@ stack_reg
             add $a0, $zero, $t2
             addi $v0, $zero, 9
             syscall
+            add $v1, $zero, $t2
             addi $t2, $t2, -1
             add $a2, $zero, $t2
             add $a1, $zero, $t0
@@ -141,7 +146,7 @@ miss_options_fn:
 
 
 free: # a0: endereco 
-
+    stack_reg
     lb $t0, 0($a0)
     sb $zero, 0($a0)
     addi $a0, $a0, 1
@@ -149,5 +154,6 @@ free: # a0: endereco
     j free
 
     end_free:
+    unstack_reg
         jr $ra
         

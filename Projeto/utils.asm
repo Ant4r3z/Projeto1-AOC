@@ -107,10 +107,12 @@ memcpy:                                 # copia a quantidade num de bytes de um 
     add $t0, $zero, $a0                 # escreve o endere?o destination para t0
     add $t1, $zero, $a1                 # escreve o endere?o source para t1
     add $t2, $zero, $zero               # escreve 0 em t2 (i)
+    addi $t4, $zero, 10
     
     memcpy_loop:                        # loop principal
         bge $t2, $a2, end_memcpy        # caso i seja igual a num, encerra a fun??o
         lb $t3, 0($t1)                  # carrega o byte de source em t3
+        beq $t3, $t4, end_memcpy
         sb $t3, 0($t0)                  # grava o byte de t3 em destination
         addi $t0, $t0, 1                # incrementa destination
         addi $t1, $t1, 1                # incrementa source
