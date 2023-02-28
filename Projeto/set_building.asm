@@ -33,7 +33,7 @@ set_building:
     
         addi $t0, $t0, 1		# increment apartment number counter
         addi $t2, $t2, 1		# increment apartment counter
-        addi $t6, $t6, 36		# increment building counter
+        addi $t6, $t6, 40		# increment building counter
     
         j floor_loop			# go back to floor_loop
     

@@ -82,8 +82,8 @@ stack_reg
 
 
 get_fn_option:
-stack_reg
-    la $t0, input
+    stack_reg
+    add $t0, $zero, $a1
     la $t1, separador
     lb $t1, 0($t1)
     add $t2, $a0, $zero

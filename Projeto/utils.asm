@@ -30,7 +30,10 @@
     lw $a3, 44($sp)
     addi $sp, $sp, 48
 .end_macro
-.globl strncmp, memcpy, get_ap_index, str_to_int
+
+abort_invalid_ap_txt: .asciiz "O apartamento informado eh invalido"
+
+.globl strncmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size
 
 
 .text
@@ -132,7 +135,12 @@ get_ap_index: # $a0: numero do apartamento (int)
     li $t1, 100
     div		$t0, $t1			# $t0 / $t1
     mflo	$t2					# $t2 = floor($t0 / $t1) 
+    addi $t4, $zero, 10
+    bgt		$t2, $t4, invalid_ap	# if $t2 > $t1 then goto target
     mfhi	$t3					# $t3 = $t0 % $t1 
+    addi $t4, $zero, 4
+    bgt		$t3, $t4, invalid_ap	# if $t2 > $t1 then goto target
+
     
     addi $t2, $t2, -1
     addi $t4, $zero, 4
@@ -141,6 +149,11 @@ get_ap_index: # $a0: numero do apartamento (int)
     add $v0, $t2, $t3
     unstack_reg
     jr $ra
+    
+    invalid_ap:
+        unstack_reg
+        addi $v0, $zero, -1
+        jr $ra
 
 
 
@@ -170,3 +183,28 @@ str_to_int:
         unstack_reg
         jr $ra
 
+
+abort_invalid_ap:
+    la $a0, abort_invalid_ap_txt
+    jal print_str
+    j start
+
+get_str_size:
+    addi $sp, $sp, -4      # Allocate space on the stack
+    sw $ra, 0($sp)         # Save the return address on the stack
+
+    move $t0, $a0          # Copy the string address to $t0
+    li $t1, 0              # Initialize the counter to 0
+
+loop_get_str_size:
+    lb $t2, 0($t0)         # Load the next character into $t2
+    beq $t2, $zero, done_get_str_size   # If the character is null, exit the loop
+    addi $t0, $t0, 1       # Increment the address of the string
+    addi $t1, $t1, 1       # Increment the counter
+    j loop_get_str_size                 # Jump back to the start of the loop
+
+done_get_str_size:
+    lw $ra, 0($sp)         # Restore the return address from the stack
+    addi $sp, $sp, 4       # Deallocate the space on the stack
+    move $v0, $t1          # Set the function return value to the size of the string
+    jr $ra                 # Return to the calling function

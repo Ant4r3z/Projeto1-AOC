@@ -3,7 +3,7 @@
 
 .data
 
-building: .space 1440 							                        # 40 apartamentos * 36 bytes por apartamento
+building: .space 1600 							                        # 40 apartamentos * 36 bytes por apartamento
 
 next_line: .asciiz "\n"                                                 # nova linha
 separador: .asciiz "-"                                                  # separador de comando
