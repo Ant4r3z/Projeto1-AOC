@@ -31,9 +31,10 @@
     addi $sp, $sp, 48
 .end_macro
 
-abort_invalid_ap_txt: .asciiz "O apartamento informado eh invalido"
+abort_invalid_ap_txt: .asciiz "O apartamento informado  invalido"
+buffer_int_to_str: .space 4              # reserve 4 bytes of space for the string
 
-.globl strncmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size
+.globl strncmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size, int_to_string, buffer_int_to_str
 
 
 .text
@@ -196,15 +197,55 @@ get_str_size:
     move $t0, $a0          # Copy the string address to $t0
     li $t1, 0              # Initialize the counter to 0
 
-loop_get_str_size:
-    lb $t2, 0($t0)         # Load the next character into $t2
-    beq $t2, $zero, done_get_str_size   # If the character is null, exit the loop
-    addi $t0, $t0, 1       # Increment the address of the string
-    addi $t1, $t1, 1       # Increment the counter
-    j loop_get_str_size                 # Jump back to the start of the loop
+    loop_get_str_size:
+        lb $t2, 0($t0)         # Load the next character into $t2
+        beq $t2, $zero, done_get_str_size   # If the character is null, exit the loop
+        addi $t0, $t0, 1       # Increment the address of the string
+        addi $t1, $t1, 1       # Increment the counter
+        j loop_get_str_size                 # Jump back to the start of the loop
 
-done_get_str_size:
-    lw $ra, 0($sp)         # Restore the return address from the stack
-    addi $sp, $sp, 4       # Deallocate the space on the stack
-    move $v0, $t1          # Set the function return value to the size of the string
-    jr $ra                 # Return to the calling function
+    done_get_str_size:
+        lw $ra, 0($sp)         # Restore the return address from the stack
+        addi $sp, $sp, 4       # Deallocate the space on the stack
+        move $v0, $t1          # Set the function return value to the size of the string
+        jr $ra                 # Return to the calling function
+
+
+# converts an integer to a string with a buffer of 4 bytes
+# input:
+#   $a0 - the integer to convert
+#   $a1 - the maximum length of the output buffer
+#   $a2 - pointer to the output buffer
+# output:
+#   none
+int_to_string:
+    stack_reg
+        li $t0, 1000
+        li $t2, 10
+    
+    its_loop:
+        beqz $a1, end_its
+        div		$a0, $t0			# $a0 / $t1
+        mflo	$t3					# $t2 = floor($a0 / $t1) 
+        # beqz $t3, its_zero
+        mfhi	$a0					# $t3 = $a0 % $t1
+
+        addi $t3, $t3, 48
+        sb $t3, 0($a2)
+
+        div		$t0, $t2			# $t0 / $t2
+        mflo	$t0					# $t0 = floor($t0 / $t2) 
+        addi $a1, $a1, -1
+        addi $a2, $a2, 1
+        j its_loop
+    
+    its_zero:
+        div		$t0, $t2			# $t0 / $t2
+        mflo	$t0					# $t0 = floor($t0 / $t2) 
+        addi $a2, $a2, 1
+        addi $a1, $a1, -1
+        j its_loop
+        
+    end_its:
+    unstack_reg
+        jr $ra

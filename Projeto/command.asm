@@ -36,6 +36,7 @@
 # definicao dos comandos
 help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
+salvar: .asciiz "salvar"
 
 ad_auto: .asciiz "ad_auto"
 
@@ -73,6 +74,10 @@ stack_reg
         la $a0, ad_auto
         jal strncmp
         beqz $v0, ad_auto_fn
+        
+        la $a0, salvar
+        jal strncmp
+        beqz $v0, salvar_fn
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao

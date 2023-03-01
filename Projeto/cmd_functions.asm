@@ -5,9 +5,11 @@ arquivo: .asciiz "C:\\arquivos\\output.txt"
 
 invalid_auto_out: .asciiz "As opcoes de tipo sao apenas 'c' (carro) e 'm' (moto)\n"
 no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
+str_data: .asciiz "This is a test!"
+str_data_end:
 
 .text
-.globl help_fn, ad_auto_fn
+.globl help_fn, ad_auto_fn, salvar_fn
 
 help_fn:                                                                # comando help
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
@@ -173,14 +175,16 @@ ad_auto_fn:
     
     add $a0, $zero, $v0
     jal str_to_int
+    
+    add $a0, $zero, $a0
+    jal free
+    
     add $a0, $zero, $v0
     jal get_ap_index
 
     add $t0, $zero, $v0 # t0: numero do apartamento
     bltz $v0, abort_invalid_ap
 
-    # add $a0, $zero, $t0
-    # jal free
 
     add $t0, $zero, $v0
 
@@ -212,7 +216,12 @@ ad_auto_fn:
     la $a1, input
     jal get_fn_option
     add $t0, $zero, $v0
+    add $t2, $zero, $t0
     lw $t0, 0($t0)
+
+    
+    add $a0, $zero, $t2
+    jal free
 
     addi $t1, $zero, 99
     bne $t0, $t1, invalid_auto_input
@@ -280,3 +289,42 @@ ad_auto_fn:
         la $a0, no_space_auto_out
         jal print_str
         j start
+
+salvar_fn:
+    
+    la $a0, arquivo
+    li $a1, 1
+    li $a2, 0
+    li $v0, 13
+    syscall
+
+    add $s7, $zero, $v0 # file descriptor
+
+    la $t0, building
+    li $t1, 40  # bytes per apartment
+    li $t2, 40
+
+    write_ap:
+        lw $t3, 0($t0)
+        add $a0, $zero, $t3
+        li $a1, 4
+        la $a2, buffer_int_to_str
+        jal int_to_string
+        move $a0, $s7
+        la $a1, buffer_int_to_str
+        addi $a2, $zero, 4
+        li $v0, 15
+        syscall
+        add $t0, $t0, $t1
+        addi $t2, $t2, -1
+        blez $t2, end_write_ap
+        j write_ap
+    
+    end_write_ap:
+        
+        add $a0, $zero, $s7
+        li $v0, 16
+        syscall
+
+        j start
+
