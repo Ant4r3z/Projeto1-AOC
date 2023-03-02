@@ -41,220 +41,85 @@ help_fn:                                                                # comand
     j start
 
 
-# ad_auto_fn:
-#     addi $a0, $zero, 1
-#     la $a1, input
-#     jal get_fn_option
 
-    
-#     add $a0, $zero, $v0
-#     jal str_to_int
-#     add $a0, $zero, $v0
-#     jal get_ap_index
-
-#     add $t0, $zero, $v0
-#     addi $t1, $zero, -1
-#     beq $t1, $v0, abort_invalid_ap
-    
-#     add $a0, $zero, $t0
-#     jal free
-
-#     add $t0, $zero, $v0
-
-    
-#     # 28
-
-    
-#     la $t4, building
-
-#     addi $t1, $zero, 36
-#     addi $t0, $t0, -1
-#     mult	$t0, $t1			# $t0 * $t1 = Hi and Lo registers
-#     mflo	$t2					# copy Lo to $t2
-    
-#     add $t4, $t4, $t2
-
-#     addi $t4, $t4, 28
-    
-#     li $v0, 9
-#     li $a0, 32
-#     syscall
-
-#     sw $v0, 0($t4)
-    
-#     add $t5, $zero, $v0  # endereco do automovel
-
-
-
-#     addi $a0, $zero, 2
-#     la $a1, input
-#     jal get_fn_option
-
-#     add $t0, $zero, $v0 # endereco do tipo de auto
-
-#     lb $t1, 0($t0)
-#     sb $t1, 0($t5)
-
-#     add $a0, $zero, $t0
-#     jal free
-
-
-#     addi $a0, $zero, 3
-#     la $a1, input
-#     jal get_fn_option
-
-#     add $t0, $zero, $v0 # endereco do modelo de auto
-#     add $t1, $zero, $v1 # tamanho do modelo de auto
-
-#     addi $t5, $t5, 1
-    
-#     add $a1, $t0, $zero
-#     add $a0, $t5, $zero
-#     add $a2, $zero, $t1
-
-#     jal memcpy
-
-#     add $a0, $zero, $t0
-#     jal free
-
-
-#     addi $t5, $t5, 20
-#     addi $a0, $zero, 4
-#     la $a1, input
-#     jal get_fn_option
-
-#     add $t0, $zero, $v0
-#     add $t1, $zero, $v1
-
-        
-#     add $a1, $t0, $zero
-#     add $a0, $t5, $zero
-#     add $a2, $zero, $t1
-
-#     jal memcpy
-
-
-#     add $a0, $zero, $t0
-#     jal free
-
-
-
-#     # teste de escrita em arquivo
-
-
-
-#     la $a0, arquivo
-#     li $a1, 1
-#     li $a2, 0
-#     li $v0, 13
-#     syscall
-
-#     add $s7, $zero, $v0
-
-#     add $a0, $zero, $s7
-#     addi $a1, $t5, -21
-#     addi $a2, $zero, 32
-
-#     addi $v0, $zero, 15
-#     syscall
-
-#     add $a0, $zero, $s7
-#     li $v0, 16
-#     syscall
-
-#     j start
-
-
-ad_auto_fn:
+ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>-<modelo>-<cor>
     # verificacoes
     # valida numero do apartamento
 
-    addi $a0, $zero, 1
+    addi $a0, $zero, 1  # extrai o numero do apartamento do input
     la $a1, input
     jal get_fn_option
     
-    add $a0, $zero, $v0
+    add $a0, $zero, $v0 # converte o numero do apartamento de string para inteito
     jal str_to_int
     
-    add $a0, $zero, $a0
+    add $a0, $zero, $a0 # apaga o numero do apartamento da heap
     jal free
     
-    add $a0, $zero, $v0
+    add $a0, $zero, $v0 # converte o numero do apartamento para indice
     jal get_ap_index
 
-    add $t0, $zero, $v0 # t0: numero do apartamento
-    bltz $v0, abort_invalid_ap
-
-
-    add $t0, $zero, $v0
+    add $t0, $zero, $v0 # t0: indice do apartamento 
+    bltz $v0, abort_invalid_ap # caso o retorno de get_ap_index seja negativo, o apartamento não existe. abortar
 
     
     # 28
 
     
-    la $t4, building
+    la $t4, building    # carrega o endereçco da estrutura building
 
-    addi $t1, $zero, 36
-    addi $t0, $t0, -1
-    mult	$t0, $t1			# $t0 * $t1 = Hi and Lo registers
-    mflo	$t2					# copy Lo to $t2
+    addi $t1, $zero, 40 # quantidade de bytes por apartamento
+    addi $t0, $t0, -1   # subtrai 1 do apartamento
+    mult	$t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo	$t2					# Lo: offset do apartamento escolhido
     
-    add $t4, $t4, $t2
+    add $t4, $t4, $t2           # soma o offset ao endereço base
 
     addi $t4, $t4, 28           # word do primeiro auto na estrutura ap
 
-
-    # li $v0, 9
-    # li $a0, 32
-    # syscall
-
-    # sw $v0, 0($t4)
-
-
-
-    addi $a0, $zero, 2
+    addi $a0, $zero, 2          # extrai o tipo de automovel do input
     la $a1, input
     jal get_fn_option
-    add $t0, $zero, $v0
-    add $t2, $zero, $t0
-    lw $t0, 0($t0)
+    add $t0, $zero, $v0         # endereco da opcao 2
+    add $t2, $zero, $t0         # copia para t2 para apagar depois
+    lw $t0, 0($t0)              # carrega o numero ascii do character informado
 
     
-    add $a0, $zero, $t2
+    add $a0, $zero, $t2         # apaga a opcao 2 da heap
     jal free
 
-    addi $t1, $zero, 99
-    bne $t0, $t1, invalid_auto_input
-    beq $t0, $t1, is_carro
+    addi $t1, $zero, 99         # c ascii
+    bne $t0, $t1, invalid_auto_input    # caso o tipo informado nao seja um c, pula para a proxima verificacao
+    beq $t0, $t1, is_carro  # se for c, pula para o procedimento de adicionar carro
     
     invalid_auto_input:
-        addi $t1, $zero, 109
-        bne $t0, $t1, invalid_auto
-        beq $t0, $t1, is_moto
+        addi $t1, $zero, 109    # m ascii
+        bne $t0, $t1, invalid_auto  # caso nao seja m nem c, o automovel e invalido. Aborta
+        beq $t0, $t1, is_moto   # caso seja m, pula para o procedimento de adicionar moto
 
 
 
-    is_carro:
-        lw $t7, 8($t4)
-        bgtz $t7, no_space_auto
-        addi $t7, $zero, 1
-        sw $t7, 8($t4)
-        j continue_ad_auto
+    is_carro:   
+        lw $t7, 8($t4)  # carrega a flag de quantidade de automovel no apartamento
+        bgtz $t7, no_space_auto     # se for maior que 0, nao ha espaco para outro carro. Aborta
+        addi $t7, $zero, 1  # adiciona 1 a flag de quantidade de automovel no apartamento
+        sw $t7, 8($t4)  # grava na memoria
+        j continue_ad_auto  # continua o procedimento de adicionar automovel
 
     is_moto:
-        lw $t7, 8($t4)
-        beqz $t7, there_is_no_moto
-        addi $t8, $zero, 3
-        beq $t7, $t8, no_space_auto
-        addi $t8, $zero, 2
-        beq $t7, $t8, there_is_one_moto
+        lw $t7, 8($t4)  # carrega a flag de quantidade de automovel no apartamento
+        beqz $t7, there_is_no_moto  # se for 0, nao tem nenhm veiculo, pula para o procedimento de adicionar a primeira moto
+        addi $t8, $zero, 3  # flag 3 para verificacao
+        beq $t7, $t8, no_space_auto # caso seja 3, ja tem duas motos, nao pode mais adicionar. Aborta
+        addi $t8, $zero, 2  # flag 2 para verificacao
+        beq $t7, $t8, there_is_one_moto # caso seja 2, ha uma moto e pode adicionar mais uma, segue para o procedimento
 
 
         there_is_one_moto:
-        addi $t7, $zero, 3
-        sw $t7, 8($t4)
-        addi $t4, $t4, 4
-        j continue_ad_auto
+        addi $t7, $zero, 3  # flag 3 para gravacao
+        sw $t7, 8($t4)  # grava 3 na word de quantidade de automovel no apartamento
+        addi $t4, $t4, 4    # soma o endereco para a proxima vaga de moto
+        j continue_ad_auto  # pula para o procedimento de continuar
 
         there_is_no_moto:
         addi $t7, $zero, 2
@@ -315,6 +180,13 @@ salvar_fn:
         addi $a2, $zero, 4
         li $v0, 15
         syscall
+        
+        move $a0, $s7
+        la $a1, next_line
+        addi $a2, $zero, 1
+        li $v0, 15
+        syscall
+
         add $t0, $t0, $t1
         addi $t2, $t2, -1
         blez $t2, end_write_ap

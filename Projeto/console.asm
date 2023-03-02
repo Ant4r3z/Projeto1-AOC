@@ -18,7 +18,7 @@ output: .space 1024
 
 
 .text
-.globl print_str, start, input, output, separador, building
+.globl print_str, start, input, output, separador, building, next_line
 
 main:
 
