@@ -38,12 +38,15 @@ help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
 salvar: .asciiz "salvar"
 
+
+rm_auto: .asciiz "rm_auto"
 ad_auto: .asciiz "ad_auto"
 
 
 # textos de saida de comandos
 cmd_invalido: .asciiz "Comando invalido\n"
 miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
+
 
 .text
 .globl get_fn_option, free, process_command

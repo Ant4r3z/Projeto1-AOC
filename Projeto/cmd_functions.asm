@@ -5,11 +5,14 @@ arquivo: .asciiz "C:\\arquivos\\output.txt"
 
 invalid_auto_out: .asciiz "As opcoes de tipo sao apenas 'c' (carro) e 'm' (moto)\n"
 no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
-str_data: .asciiz "This is a test!"
-str_data_end:
+cmd_4: .asciiz "rm_auto-<apt>-<tipo>-<modelo>-<cor>\n"
+cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
+cmd_4_ap_n: .asciiz "Falha: AP invalido"
+cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
+nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 
 .text
-.globl help_fn, ad_auto_fn, salvar_fn
+.globl help_fn, ad_auto_fn, salvar_fn, rm_auto
 
 help_fn:                                                                # comando help
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
@@ -100,15 +103,15 @@ ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>
 
 
     is_carro:   
-        lw $t7, 8($t4)  # carrega a flag de quantidade de automovel no apartamento
-        bgtz $t7, no_space_auto     # se for maior que 0, nao ha espaco para outro carro. Aborta
+        lw $t7, 8($t4)      # carrega a flag de quantidade de automovel no apartamento
+        bgtz $t7, no_space_auto         # se for maior que 0, nao ha espaco para outro carro. Aborta
         addi $t7, $zero, 1  # adiciona 1 a flag de quantidade de automovel no apartamento
         sw $t7, 8($t4)  # grava na memoria
         j continue_ad_auto  # continua o procedimento de adicionar automovel
 
     is_moto:
         lw $t7, 8($t4)  # carrega a flag de quantidade de automovel no apartamento
-        beqz $t7, there_is_no_moto  # se for 0, nao tem nenhm veiculo, pula para o procedimento de adicionar a primeira moto
+        beqz $t7, there_is_no_moto  # se for 0, nao tem nenhum veiculo, pula para o procedimento de adicionar a primeira moto
         addi $t8, $zero, 3  # flag 3 para verificacao
         beq $t7, $t8, no_space_auto # caso seja 3, ja tem duas motos, nao pode mais adicionar. Aborta
         addi $t8, $zero, 2  # flag 2 para verificacao
@@ -200,3 +203,123 @@ salvar_fn:
 
         j start
 
+rm_auto:                                                                         #codigo de remover auto
+
+addi $a0, $zero, 1  # pega a opcao da posicao 1 
+    la $a1, input
+    jal get_fn_option   # executa a funcao
+    add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
+
+
+    la $a0, help_out
+    jal print_str
+
+    add $a0, $zero, $t0
+    jal str_to_int
+    
+    
+    addi $a0, $zero, 1
+    la $a1, input
+    jal get_fn_option
+    
+    add $a0, $zero, $v0
+    jal str_to_int
+    
+    add $a0, $zero, $a0
+    jal free
+    
+    add $a0, $zero, $v0
+    jal get_ap_index
+
+    add $t0, $zero, $v0 # t0: numero do apartamento
+    bltz $v0, abort_invalid_ap
+    #----
+
+    la $t4, building    # carrega o endereçco da estrutura building
+
+    addi $t1, $zero, 40 # quantidade de bytes por apartamento
+    addi $t0, $t0, -1   # subtrai 1 do apartamento
+    mult	$t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo	$t2					# Lo: offset do apartamento escolhido
+    
+    add $t4, $t4, $t2           # soma o offset ao endereço base
+
+    addi $t4, $t4, 28           # word do primeiro auto na estrutura ap
+
+    addi $a0, $zero, 2          # extrai o tipo de automovel do input
+    la $a1, input
+    jal get_fn_option
+    add $t0, $zero, $v0         # endereco da opcao 2
+    add $t2, $zero, $t0         # copia para t2 para apagar depois
+    lw $t0, 0($t0)              # carrega o numero ascii do character informado
+
+    
+    add $a0, $zero, $t2         # apaga a opcao 2 da heap
+    jal free
+    
+    addi $t1, $zero, 99         # c ascii
+    bne $t0, $t1, n_e_carro    # caso o tipo informado nao seja um c, pula para a proxima verificacao
+    beq $t0, $t1, is_carro_rm  # se for c, pula para o procedimento de remover carro
+    
+    n_e_carro:
+    addi $t1, $zero, 109    # m ascii
+        bne $t0, $t1, invalid_auto  # caso nao seja m nem c, o automovel e invalido. Aborta
+        beq $t0, $t1, is_moto_rm
+    
+
+
+    is_carro_rm:
+        lw $t2, 8($t4)
+        beqz $t2, nao_tem_carro_pra_remover 
+        j continue_rm_auto #rm carro
+
+    is_moto_rm:
+        lw $t2, 8($t4)
+        li $t3, 2 
+        blt $t2, $t3, nao_tem_carro_pra_remover 
+        j continue_rm_auto 
+ 
+    continue_rm_auto:
+     	li $a0, 3
+        la $a1, input
+        jal get_fn_option
+        add $t6, $zero, $v0
+        li $a0, 3
+        add $a1, $zero, $t4
+        add $t7, $zero, $v0
+        add $a0, $zero, $t6
+        add $a1, $zero, $t7
+        jal strcmp
+        bnez $v0, auto_n_encontrado
+
+        li $a0, 4
+        la $a1, input
+        jal get_fn_option
+        add $t6, $zero, $v0
+        li $a0, 4
+        add $a1, $zero, $t4
+        add $t7, $zero, $v0
+        add $a0, $zero, $t6
+        add $a1, $zero, $t7
+        jal strcmp
+        bnez $v0, auto_n_encontrado
+
+    remover_segunda_moto:
+
+
+    nao_tem_carro_pra_remover:
+
+    la $a0, nao_tem_carro_pra_remover_out
+    jal print_str
+
+    j start
+
+    auto_n_encontrado:
+    lw $t8, 
+    la $a0, cmd_4_auto_n
+    jal print_str
+ 
+    j start
+
+
+    jal free

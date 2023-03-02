@@ -34,7 +34,7 @@
 abort_invalid_ap_txt: .asciiz "O apartamento informado  invalido"
 buffer_int_to_str: .space 4              # reserve 4 bytes of space for the string
 
-.globl strncmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size, int_to_string, buffer_int_to_str
+.globl strncmp, strcmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size, int_to_string, buffer_int_to_str
 
 
 .text
