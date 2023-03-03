@@ -14,6 +14,68 @@ nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 .text
 .globl help_fn, ad_auto_fn, salvar_fn, rm_auto
 
+
+
+ad_morador_fn: # adiciona um morador a um apartamento: ad_morador-<apartamento>-<nome do morador>
+
+# valida numero do apartamento
+
+    addi $a0, $zero, 1  # extrai o numero do apartamento do input
+    la $a1, input
+    jal get_fn_option
+    
+    add $a0, $zero, $v0 # converte o numero do apartamento de string para inteito
+    jal str_to_int
+    
+    add $a0, $zero, $a0 # apaga o numero do apartamento da heap
+    jal free
+    
+    add $a0, $zero, $v0 # converte o numero do apartamento para indice
+    jal get_ap_index
+
+    add $t0, $zero, $v0 # t0: indice do apartamento 
+    bltz $v0, abort_invalid_ap # caso o retorno de get_ap_index seja negativo, o apartamento não existe. abortar
+
+# fim
+# procedimento real
+
+    la $t4, building            # carrega o endereço da estrutura building
+
+    addi $t1, $zero, 40         # quantidade de bytes por apartamento
+    addi $t0, $t0, -1           # subtrai 1 do apartamento
+    mult	$t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo	$t2					# Lo: offset do apartamento escolhido
+    
+    add $t4, $t4, $t2           # soma o offset ao endereço base (gera o primeiro byte do apartamento)
+
+    # verificacao de numero de moradores
+    addi $t5, $t4, 4            # onde esta o numero de moradores
+    bge $t5, 5, abort_exceeding_tenant
+
+    # else
+    lw $t3, 0($t5)              # load num de moradores no apt
+    addi $t3, $t3, 1            # add 1
+    sw $t3, 0($t5)              # retorna ao lugar
+
+    addi $t5, $t5, 4            # onde esta o primeiro morador
+    add $t6, $t5, 28            # limite do iterador (ultimo slot de morador disponivel)
+    
+    find_empty_space:                       # procura um slot vazio
+        blt $t5, $t6, search_slot_loop      # se não chegou ao ultimo slot, pula para search_slot_loop
+        j unexpected_error1_ap              # else tela de erro
+    
+    search_slot_loop:                       # itera os slots
+        beq $t5, $zero, is_empty            # se o slot está vazio, continua
+        addi $t5, $t5, 4                    # else, endereco do prox morador
+        j find_empty_space                  # retorna ao loop
+
+    is_empty:
+        addi $a0, $zero, 2      # extrai o nome do morador de do input
+        la $a1, input
+        jal get_fn_option
+        sw	$v0, 0($t5)		    # guarda o endereco do nome do morador no slot 
+        
+
 help_fn:                                                                # comando help
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
     la $a1, input

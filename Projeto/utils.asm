@@ -32,6 +32,10 @@
 .end_macro
 
 abort_invalid_ap_txt: .asciiz "O apartamento informado  invalido"
+abort_exceeding_tenant_txt: .asciiz "Você excedeu o maximo de moradores possiveis neste apartamento"
+unexpected_error1_ap_txt: .asciiz "Log: espaco vazio nao encontrado (morador)"
+
+
 buffer_int_to_str: .space 4              # reserve 4 bytes of space for the string
 
 .globl strncmp, strcmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size, int_to_string, buffer_int_to_str
@@ -187,6 +191,16 @@ str_to_int:
 
 abort_invalid_ap:
     la $a0, abort_invalid_ap_txt
+    jal print_str
+    j start
+
+abort_exceeding_tenant:
+    la $a0, abort_exceeding_tenant_txt
+    jal print_str
+    j start
+
+unexpected_error1_ap:
+    la $a0, unexpected_error1_ap_txt
     jal print_str
     j start
 

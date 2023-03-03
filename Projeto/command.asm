@@ -74,6 +74,10 @@ stack_reg
         jal strncmp                                                     # chama a funcao strncmp (compara o numero n de bytes de duas strings)
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
 
+        la $a0, ad_morador
+        jal strncmp
+        beqz $v0, ad_morador_fn
+
         la $a0, ad_auto
         jal strncmp
         beqz $v0, ad_auto_fn
