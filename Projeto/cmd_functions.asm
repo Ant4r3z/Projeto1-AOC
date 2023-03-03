@@ -106,10 +106,8 @@ ad_morador_fn: # adiciona um morador a um apartamento: ad_morador-<apartamento>-
         la $a1, input
         jal get_fn_option
         sw	$v0, 0($t5)		    # guarda o endereco do nome do morador no slot 
+        j ap_morador_conclusion
         
-    j start
-
-
 
 ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>-<modelo>-<cor>
     # verificacoes
@@ -271,7 +269,7 @@ salvar_fn:
 
 rm_auto:                                                                         #codigo de remover auto
 
-addi $a0, $zero, 1  # pega a opcao da posicao 1 
+    addi $a0, $zero, 1  # pega a opcao da posicao 1 
     la $a1, input
     jal get_fn_option   # executa a funcao
     add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
@@ -381,7 +379,7 @@ addi $a0, $zero, 1  # pega a opcao da posicao 1
     j start
 
     auto_n_encontrado:
-    #lw $t8, 
+    #lw $t8, 4($t4)
     la $a0, cmd_4_auto_n
     jal print_str
  
