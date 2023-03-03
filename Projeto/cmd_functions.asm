@@ -12,7 +12,7 @@ cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
 nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 
 .text
-.globl help_fn, ad_auto_fn, salvar_fn, rm_auto
+.globl help_fn, ad_auto_fn, salvar_fn,  rm_auto_fn
 
 help_fn:                                                                # comando help
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
@@ -203,16 +203,13 @@ salvar_fn:
 
         j start
 
-rm_auto:                                                                         #codigo de remover auto
+rm_auto_fn:                                                                         #codigo de remover auto
 
 addi $a0, $zero, 1  # pega a opcao da posicao 1 
     la $a1, input
     jal get_fn_option   # executa a funcao
     add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
-
-
-    la $a0, help_out
-    jal print_str
+    addi $t9, $0, 0
 
     add $a0, $zero, $t0
     jal str_to_int
@@ -284,8 +281,9 @@ addi $a0, $zero, 1  # pega a opcao da posicao 1
         la $a1, input
         jal get_fn_option
         add $t6, $zero, $v0
-        li $a0, 3
-        add $a1, $zero, $t4
+        li $a0, 2
+        lw $a1, 0($t4)
+        jal get_fn_option
         add $t7, $zero, $v0
         add $a0, $zero, $t6
         add $a1, $zero, $t7
@@ -296,30 +294,38 @@ addi $a0, $zero, 1  # pega a opcao da posicao 1
         la $a1, input
         jal get_fn_option
         add $t6, $zero, $v0
-        li $a0, 4
-        add $a1, $zero, $t4
+        li $a0, 3
+        lw $a1, 0($t4)
+        jal get_fn_option
         add $t7, $zero, $v0
         add $a0, $zero, $t6
         add $a1, $zero, $t7
         jal strcmp
-        bnez $v0, auto_n_encontrado
+        bnez $v0, auto_n_encontrado 
 
+        lw $a0, 0($t4)
+        jal free #excluiu da heap o carro
+        sw $0, 0($t4)
+        j start
+    
     remover_segunda_moto:
-
+        addi $t4,$t4, 4    
+        addi $t9, $t9, 1 
+        j continue_ad_auto
 
     nao_tem_carro_pra_remover:
 
-    la $a0, nao_tem_carro_pra_remover_out
-    jal print_str
+        la $a0, nao_tem_carro_pra_remover_out
+        jal print_str
 
-    j start
+        j start
 
-    auto_n_encontrado:
-    lw $t8, 
-    la $a0, cmd_4_auto_n
-    jal print_str
+        auto_n_encontrado:
+        bnez $t9, end
+        lw $t8, 8($t4) #Compara o valor da flag para verificar se possui uma segunda moto
+        beq $t8, 3, remover_segunda_moto # Caso haja (3), envia para remover_segunda_moto
+        end:
+        la $a0, cmd_4_auto_n
+        jal print_str
  
-    j start
-
-
-    jal free
+        j start
