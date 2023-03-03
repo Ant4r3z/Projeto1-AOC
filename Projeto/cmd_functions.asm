@@ -3,8 +3,6 @@ help_out: .asciiz "Esta eh a lista dos comandos disponiveis\n    cmd_1. ad_morad
 
 arquivo: .asciiz "C:\\arquivos\\output.txt"
 
-invalid_auto_out: .asciiz "As opcoes de tipo sao apenas 'c' (carro) e 'm' (moto)\n"
-no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
 cmd_4: .asciiz "rm_auto-<apt>-<tipo>-<modelo>-<cor>\n"
 cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
 cmd_4_ap_n: .asciiz "Falha: AP invalido"
@@ -13,7 +11,6 @@ nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 
 .text
 .globl help_fn, ad_morador_fn, ad_auto_fn, salvar_fn, rm_auto
-
 
 
 help_fn:                                                                # comando help
@@ -209,18 +206,6 @@ ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>
         jal memcpy
         j start
 
-
-    end_ad_auto_fn:
-
-    invalid_auto:
-        la $a0, invalid_auto_out
-        jal print_str
-        j start
-
-    no_space_auto:
-        la $a0, no_space_auto_out
-        jal print_str
-        j start
 
 salvar_fn:
     
