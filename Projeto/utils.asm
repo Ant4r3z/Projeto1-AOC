@@ -31,14 +31,14 @@
     addi $sp, $sp, 48
 .end_macro
 
-abort_invalid_ap_txt: .asciiz "O apartamento informado  invalido"
-abort_exceeding_tenant_txt: .asciiz "Você excedeu o maximo de moradores possiveis neste apartamento"
-unexpected_error1_ap_txt: .asciiz "Log: espaco vazio nao encontrado (morador)"
+abort_invalid_ap_txt: .asciiz "O apartamento informado  invalido\n"
+abort_exceeding_tenant_txt: .asciiz "Voce excedeu o maximo de moradores possiveis neste apartamento\n"
+unexpected_error1_ap_txt: .asciiz "Log: espaco vazio nao encontrado (morador)\n"
 
 
 buffer_int_to_str: .space 4              # reserve 4 bytes of space for the string
 
-.globl strncmp, strcmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size, int_to_string, buffer_int_to_str
+.globl strncmp, strcmp, memcpy, get_ap_index, str_to_int, abort_invalid_ap, get_str_size, int_to_string, buffer_int_to_str, abort_exceeding_tenant, unexpected_error1_ap
 
 
 .text
