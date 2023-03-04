@@ -188,6 +188,7 @@ str_to_int:
 
 
 get_str_size:
+stack_reg
     addi $sp, $sp, -4      # Allocate space on the stack
     sw $ra, 0($sp)         # Save the return address on the stack
 
@@ -205,6 +206,7 @@ get_str_size:
         lw $ra, 0($sp)         # Restore the return address from the stack
         addi $sp, $sp, 4       # Deallocate the space on the stack
         move $v0, $t1          # Set the function return value to the size of the string
+        unstack_reg
         jr $ra                 # Return to the calling function
 
 

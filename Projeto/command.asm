@@ -38,6 +38,7 @@ help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
 rm_morador: .asciiz "rm_morador"
 salvar: .asciiz "salvar"
+recarregar: .asciiz "recarregar"
 
 
 rm_auto: .asciiz "rm_auto"
@@ -57,21 +58,22 @@ stack_reg
     la $t0, input                                                       # carrega a string input
     lb $t1, 0($t0)
     beqz $t1, end_process
-    add $t1, $zero, $zero                                               # tamanho do nome do comando
+    addi $t1, $zero, -1                                               # tamanho do nome do comando
     la $t3, separador                                                   # carrega o char separador
+    lb $t3, 0($t3)
     prcmd_loop:                                                         # loop que encontra o nome do comando
+        lb $t2, 0($t0)                                                  # carrega o byte atual de input em t2
         beqz $t2, cmd_cmp                                               # se chegar no fim da string, desvia para o comparador de comando
         beq $t2, $t3, cmd_cmp                                           # se encontrar o separador, //
         addi $t0, $t0, 1                                                # incrementa o cursor da string input  
         addi $t1, $t1, 1                                                # incrementa o tamanho do nome do comando
-        lb $t2, 0($t0)                                                  # carrega o byte atual de input em t2
         j prcmd_loop                                                    # iteracao do loop
     cmd_cmp:                                                            # encontra e direciona o comando a sua determinada funcao (switch-case)
 
 
         la $a0, help                                                    # carrega o nome de comando help em a0
         la $a1, input                                                   # carrega a string input em a1
-        add $a2, $zero, $t1                                               # carrega o tamanho do nome do comando
+        add $a3, $zero, $t1                                               # carrega o tamanho do nome do comando
         jal strncmp                                                     # chama a funcao strncmp (compara o numero n de bytes de duas strings)
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
 
@@ -94,6 +96,10 @@ stack_reg
         la $a0, salvar
         jal strncmp
         beqz $v0, salvar_fn
+
+        la $a0, recarregar
+        jal strncmp
+        beqz $v0, recarregar_fn
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao

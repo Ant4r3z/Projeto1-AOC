@@ -8,9 +8,10 @@ cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
 cmd_4_ap_n: .asciiz "Falha: AP invalido"
 cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
 nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
+input_file: .space 1000000
 
 .text
-.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto
+.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn
 
 
 help_fn:                                                                # comando help
@@ -304,6 +305,8 @@ salvar_fn:
     li $t2, 40
 
     write_ap:
+        add $t4, $zero, $t0  # endereco base temporario
+
         lw $t3, 0($t0)
         add $a0, $zero, $t3
         li $a1, 4
@@ -321,6 +324,59 @@ salvar_fn:
         li $v0, 15
         syscall
 
+                # salva moradores
+        li $t6, 7
+        salva_dados:
+            lw $t5, 8($t4)
+            beqz $t6, end_salva_dados
+            beqz $t5, skip_null_salva_dados
+
+            add $a0, $zero, $t5
+            jal get_str_size
+
+            move $a0, $s7
+            add $a1, $zero, $t5
+            add $a2, $zero, $v0
+            li $v0, 15
+            syscall
+
+            skip_null_salva_dados:
+            move $a0, $s7
+            la $a1, next_line
+            addi $a2, $zero, 1
+            li $v0, 15
+            syscall
+
+            addi $t4, $t4, 4
+            addi $t6, $t6, -1
+            j salva_dados
+
+            end_salva_dados:
+                addi $t4, $t4, 8
+                lw $a0, 0($t4)
+                li $a1, 4
+                la $a2, buffer_int_to_str
+                jal int_to_string
+
+                la $t4, buffer_int_to_str
+                addi $t4, $t4, 3
+                move $a0, $s7
+                add $a1, $zero, $t4
+                addi $a2, $zero, 1
+                li $v0, 15
+                syscall
+
+                
+
+            move $a0, $s7
+            la $a1, next_line
+            addi $a2, $zero, 1
+            li $v0, 15
+            syscall
+        
+            
+
+        
         add $t0, $t0, $t1
         addi $t2, $t2, -1
         blez $t2, end_write_ap
@@ -333,6 +389,33 @@ salvar_fn:
         syscall
 
         j start
+
+recarregar_fn:
+    la $a0, arquivo
+    li $a1, 0
+    li $a2, 0
+    li $v0, 13
+    syscall
+
+    add $s7, $zero, $v0 # file descriptor
+
+    li $v0, 14
+    add $a0, $zero, $s7
+    la $a1, input_file
+    li $a2, 1000000
+    syscall
+
+    la $a0, input_file
+    jal print_str
+
+    add $a0, $zero, $s7
+    li $v0, 16
+    syscall
+
+    j start
+
+
+
 
 rm_auto_fn:                                                                         #codigo de remover auto
 
