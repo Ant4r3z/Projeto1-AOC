@@ -177,7 +177,7 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
         j find_tentant                  # retorna ao loop
     
     remove_tenant:
-        sw $zero, $(t6)                 # volta o valor a 0
+        sw $zero, 0($t6)                 # volta o valor a 0
         j rm_morador_conclusion         # finaliza o procedimento
 
 

@@ -36,6 +36,7 @@
 # definicao dos comandos
 help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
+rm_morador: .asciiz "rm_morador"
 salvar: .asciiz "salvar"
 
 
@@ -77,6 +78,10 @@ stack_reg
         la $a0, ad_morador
         jal strncmp
         beqz $v0, ad_morador_fn
+
+        la $a0, rm_morador
+        jal strncmp
+        beqz $v0, rm_morador_fn
 
         la $a0, ad_auto
         jal strncmp
