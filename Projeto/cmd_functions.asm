@@ -186,6 +186,8 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
         sw $zero, 32($t4)
         sw $zero, 36($t4)
 
+        j rm_morador_conclusion         # finaliza o procedimento
+
 ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>-<modelo>-<cor>
     # verificacoes
     # valida numero do apartamento
