@@ -45,7 +45,7 @@ add_morador_conclusion:
     j start
 
 rm_morador_conclusion:
-    la $a0, add_morador_conclusion_txt
+    la $a0, rm_morador_conclusion_txt
     jal print_str
     j start
 

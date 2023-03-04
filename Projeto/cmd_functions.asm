@@ -143,16 +143,11 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
     lw $t6, 0($t5)
     ble $t6, 0, abort_no_tenant
 
-    # else
-    lw $t3, 0($t5)              # load num de moradores no apt
-    addi $t3, $t3, -1           # subtrai 1
-    sw $t3, 0($t5)              # retorna ao lugar
-
     # receber o input do usuario
-    addi $a0, $zero, 2          # extrai o nome do morador de do input
+    addi $a0, $zero, 2          # extrai o nome do morador do input
     la $a1, input
     jal get_fn_option
-    move $a0, $v0		        # $a0 recebe o endereço guardado em $v0
+    add $a0, $zero, $v0		    # $a0 recebe o endereço guardado em $v0
 
     # fim
     addi $t5, $t5, 4            # onde esta o primeiro morador
@@ -163,9 +158,9 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
         j abort_tenant_not_found        # else tela de erro
     
     tenant_loop:
+        lw $t6, 0($t5)                  # $t6 recebe a word armazenada em t5
         bnez $t6, compare_tenant        # se o slot nao for vazio, compare
         addi $t5, $t5, 4                # else, endereco do prox morador
-        lw $t6, 0($t5)
         j find_tentant                  # retorna ao loop
 
     compare_tenant:
@@ -173,13 +168,23 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
         jal strcmp                      # $a1 e $a0 são comparados
         beqz $v0, remove_tenant         # se sao iguais, remove
         addi $t5, $t5, 4                # else, endereco do prox morador
-        lw $t6, 0($t5)
         j find_tentant                  # retorna ao loop
     
     remove_tenant:
-        sw $zero, 0($t6)                 # volta o valor a 0
+        sw $zero, 0($t5)                # volta o valor a 0
+        
+        # atualiza numero de moradores
+        lw $t3, 4($t4)                  # load num de moradores no apt
+        addi $t3, $t3, -1               # subtrai 1
+        sw $t3, 4($t4)                  # retorna ao lugar
+        blez $t3, remove_all_vehicles
+
         j rm_morador_conclusion         # finaliza o procedimento
 
+    remove_all_vehicles:
+        sw $zero, 28($t4)
+        sw $zero, 32($t4)
+        sw $zero, 36($t4)
 
 ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>-<modelo>-<cor>
     # verificacoes
