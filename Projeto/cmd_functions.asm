@@ -306,12 +306,33 @@ rm_auto_fn:                                                                     
         lw $a0, 0($t4)
         jal free #excluiu da heap o carro
         sw $0, 0($t4)
+
+        blt $t2, 3, removeu_unico
+        beq $t2, 3, removeu_moto
+
+        removeu_unico:
+            sw $0, 8($t4)
+            j start
+
+        removeu_moto:
+            li $t8, 2
+            beq $t9, 0, removeu_primeira_moto
+            sw $t8, 4($t4)
+            j start
+
+        removeu_primeira_moto:
+            sw $t8, 8($t4)
+            lw $t8, 4($t4)
+            sw $zero, 4($t4)
+            sw $t8, 0($t4)
+            j start
+
         j start
     
     remover_segunda_moto:
         addi $t4,$t4, 4    
         addi $t9, $t9, 1 
-        j continue_ad_auto
+        j continue_rm_auto
 
     nao_tem_carro_pra_remover:
 
