@@ -36,6 +36,7 @@
 # definicao dos comandos
 help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
+rm_morador: .asciiz "rm_morador"
 salvar: .asciiz "salvar"
 
 
@@ -73,6 +74,14 @@ stack_reg
         add $a2, $zero, $t1                                               # carrega o tamanho do nome do comando
         jal strncmp                                                     # chama a funcao strncmp (compara o numero n de bytes de duas strings)
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
+
+        la $a0, ad_morador
+        jal strncmp
+        beqz $v0, ad_morador_fn
+
+        la $a0, rm_morador
+        jal strncmp
+        beqz $v0, rm_morador_fn
 
         la $a0, ad_auto
         jal strncmp

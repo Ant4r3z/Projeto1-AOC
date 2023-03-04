@@ -3,8 +3,6 @@ help_out: .asciiz "Esta eh a lista dos comandos disponiveis\n    cmd_1. ad_morad
 
 arquivo: .asciiz "C:\\arquivos\\output.txt"
 
-invalid_auto_out: .asciiz "As opcoes de tipo sao apenas 'c' (carro) e 'm' (moto)\n"
-no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
 cmd_4: .asciiz "rm_auto-<apt>-<tipo>-<modelo>-<cor>\n"
 cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
 cmd_4_ap_n: .asciiz "Falha: AP invalido"
@@ -12,7 +10,8 @@ cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
 nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 
 .text
-.globl help_fn, ad_auto_fn, salvar_fn,  rm_auto_fn
+.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto
+
 
 help_fn:                                                                # comando help
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
@@ -44,6 +43,150 @@ help_fn:                                                                # comand
     j start
 
 
+ad_morador_fn: # adiciona um morador a um apartamento: ad_morador-<apartamento>-<nome do morador>
+
+    # valida numero do apartamento
+
+    addi $a0, $zero, 1  # extrai o numero do apartamento do input
+    la $a1, input
+    jal get_fn_option
+    
+    add $a0, $zero, $v0 # converte o numero do apartamento de string para inteito
+    jal str_to_int
+    
+    add $a0, $zero, $a0 # apaga o numero do apartamento da heap
+    jal free
+    
+    add $a0, $zero, $v0 # converte o numero do apartamento para indice
+    jal get_ap_index
+
+    add $t0, $zero, $v0 # t0: indice do apartamento 
+    bltz $v0, abort_invalid_ap # caso o retorno de get_ap_index seja negativo, o apartamento não existe. abortar
+
+    # fim
+    # procedimento real
+
+    la $t4, building            # carrega o endereço da estrutura building
+
+    addi $t1, $zero, 40         # quantidade de bytes por apartamento
+    addi $t0, $t0, -1           # subtrai 1 do apartamento
+    mult	$t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo	$t2					# Lo: offset do apartamento escolhido
+    
+    add $t4, $t4, $t2           # soma o offset ao endereço base (gera o primeiro byte do apartamento)
+
+    # verificacao de numero de moradores
+    addi $t5, $t4, 4            # onde esta o numero de moradores
+    lw $t6, 0($t5)
+    bge $t6, 5, abort_exceeding_tenant
+
+    # else
+    lw $t3, 0($t5)              # load num de moradores no apt
+    addi $t3, $t3, 1            # add 1
+    sw $t3, 0($t5)              # retorna ao lugar
+
+    addi $t5, $t5, 4            # onde esta o primeiro morador
+    add $t7, $t5, 28            # limite do iterador (ultimo slot de morador disponivel)
+    
+    find_empty_space:                       # procura um slot vazio
+        blt $t5, $t7, search_slot_loop      # se não chegou ao ultimo slot, pula para search_slot_loop
+        j unexpected_error1_ap              # else tela de erro
+    
+    search_slot_loop:                       # itera os slots
+        beq $t6, $zero, is_empty            # se o slot está vazio, continua
+        addi $t5, $t5, 4                    # else, endereco do prox morador
+        lw $t6, 0($t5)
+        j find_empty_space                  # retorna ao loop
+
+    is_empty:
+        addi $a0, $zero, 2      # extrai o nome do morador de do input
+        la $a1, input
+        jal get_fn_option
+        sw $v0, 0($t5)		    # guarda o endereco do nome do morador no slot 
+        j add_morador_conclusion
+        
+
+rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<nome do morador>
+
+    # valida numero do apartamento
+
+    addi $a0, $zero, 1  # extrai o numero do apartamento do input
+    la $a1, input
+    jal get_fn_option
+    
+    add $a0, $zero, $v0 # converte o numero do apartamento de string para inteito
+    jal str_to_int
+    
+    add $a0, $zero, $a0 # apaga o numero do apartamento da heap
+    jal free
+    
+    add $a0, $zero, $v0 # converte o numero do apartamento para indice
+    jal get_ap_index
+
+    add $t0, $zero, $v0 # t0: indice do apartamento 
+    bltz $v0, abort_invalid_ap # caso o retorno de get_ap_index seja negativo, o apartamento não existe. abortar
+
+    # fim
+    # procedimento real
+
+    la $t4, building            # carrega o endereço da estrutura building
+
+    addi $t1, $zero, 40         # quantidade de bytes por apartamento
+    addi $t0, $t0, -1           # subtrai 1 do apartamento
+    mult	$t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo	$t2					# Lo: offset do apartamento escolhido
+    
+    add $t4, $t4, $t2           # soma o offset ao endereço base (gera o primeiro byte do apartamento)
+
+    # verificacao de numero de moradores
+    addi $t5, $t4, 4            # onde esta o numero de moradores
+    lw $t6, 0($t5)
+    ble $t6, 0, abort_no_tenant
+
+    # receber o input do usuario
+    addi $a0, $zero, 2          # extrai o nome do morador do input
+    la $a1, input
+    jal get_fn_option
+    add $a0, $zero, $v0		    # $a0 recebe o endereço guardado em $v0
+
+    # fim
+    addi $t5, $t5, 4            # onde esta o primeiro morador
+    add $t7, $t5, 28            # limite do iterador (ultimo slot de morador disponivel)
+    
+    find_tentant:                       # procura um novo slot
+        blt $t5, $t7, tenant_loop       # se não chegou ao ultimo slot, pula para search_slot_loop
+        j abort_tenant_not_found        # else tela de erro
+    
+    tenant_loop:
+        lw $t6, 0($t5)                  # $t6 recebe a word armazenada em t5
+        bnez $t6, compare_tenant        # se o slot nao for vazio, compare
+        addi $t5, $t5, 4                # else, endereco do prox morador
+        j find_tentant                  # retorna ao loop
+
+    compare_tenant:
+        add $a1, $zero, $t6             # $a1 recebe o endereço guardado em $t6
+        jal strcmp                      # $a1 e $a0 são comparados
+        beqz $v0, remove_tenant         # se sao iguais, remove
+        addi $t5, $t5, 4                # else, endereco do prox morador
+        j find_tentant                  # retorna ao loop
+    
+    remove_tenant:
+        sw $zero, 0($t5)                # volta o valor a 0
+        
+        # atualiza numero de moradores
+        lw $t3, 4($t4)                  # load num de moradores no apt
+        addi $t3, $t3, -1               # subtrai 1
+        sw $t3, 4($t4)                  # retorna ao lugar
+        blez $t3, remove_all_vehicles
+
+        j rm_morador_conclusion         # finaliza o procedimento
+
+    remove_all_vehicles:
+        sw $zero, 28($t4)
+        sw $zero, 32($t4)
+        sw $zero, 36($t4)
+
+        j rm_morador_conclusion         # finaliza o procedimento
 
 ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>-<modelo>-<cor>
     # verificacoes
@@ -145,18 +288,6 @@ ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>
         jal memcpy
         j start
 
-
-    end_ad_auto_fn:
-
-    invalid_auto:
-        la $a0, invalid_auto_out
-        jal print_str
-        j start
-
-    no_space_auto:
-        la $a0, no_space_auto_out
-        jal print_str
-        j start
 
 salvar_fn:
     
