@@ -205,7 +205,7 @@ salvar_fn:
 
 rm_auto:                                                                         #codigo de remover auto
 
-addi $a0, $zero, 1  # pega a opcao da posicao 1 
+    addi $a0, $zero, 1  # pega a opcao da posicao 1 
     la $a1, input
     jal get_fn_option   # executa a funcao
     add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
@@ -284,8 +284,9 @@ addi $a0, $zero, 1  # pega a opcao da posicao 1
         la $a1, input
         jal get_fn_option
         add $t6, $zero, $v0
-        li $a0, 3
+        li $a0, 2
         add $a1, $zero, $t4
+        jal get_fn_option
         add $t7, $zero, $v0
         add $a0, $zero, $t6
         add $a1, $zero, $t7
@@ -296,7 +297,7 @@ addi $a0, $zero, 1  # pega a opcao da posicao 1
         la $a1, input
         jal get_fn_option
         add $t6, $zero, $v0
-        li $a0, 4
+        li $a0, 3
         add $a1, $zero, $t4
         add $t7, $zero, $v0
         add $a0, $zero, $t6
@@ -309,17 +310,14 @@ addi $a0, $zero, 1  # pega a opcao da posicao 1
 
     nao_tem_carro_pra_remover:
 
-    la $a0, nao_tem_carro_pra_remover_out
-    jal print_str
+        la $a0, nao_tem_carro_pra_remover_out
+        jal print_str
 
-    j start
+        j start
 
     auto_n_encontrado:
-    lw $t8, 
-    la $a0, cmd_4_auto_n
-    jal print_str
- 
-    j start
+        la $a0, cmd_4_auto_n
+        jal print_str
+    
+        j start
 
-
-    jal free
