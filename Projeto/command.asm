@@ -37,11 +37,14 @@
 help: .asciiz "help"
 ad_morador: .asciiz "ad_morador"
 rm_morador: .asciiz "rm_morador"
-salvar: .asciiz "salvar"
-
-
-rm_auto: .asciiz "rm_auto"
 ad_auto: .asciiz "ad_auto"
+rm_auto: .asciiz "rm_auto"
+limpar_ap: .asciiz "limpar_ap"
+info_ap: .asciiz "info_ap"
+info_geral: .asciiz "info_geral"
+salvar: .asciiz "salvar"
+recarregar: .asciiz "recarregar"
+
 
 
 # textos de saida de comandos
@@ -94,6 +97,18 @@ stack_reg
         la $a0, salvar
         jal strncmp
         beqz $v0, salvar_fn
+
+        la $a0, limpar_ap
+        jal strncmp
+        beqz $v0, limpar_ap_fn
+
+        la $a0, recarregar
+        jal strncmp
+        beqz $v0, recarregar_fn
+
+        la $a0, info_geral
+        jal strncmp
+        beqz $v0, info_geral_fn
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao

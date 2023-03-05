@@ -9,10 +9,21 @@ add_morador_conclusion_txt: .asciiz "Morador adicionado com sucesso!\n"
 rm_morador_conclusion_txt: .asciiz "Morador removido com sucesso!\n"
 invalid_auto_out: .asciiz "As opcoes de tipo sao apenas 'c' (carro) e 'm' (moto)\n"
 no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
-
+# cmd_6
+empty_apartment_txt: .asciiz "Apartamento vazio\n"
+ap_num_txt: .asciiz "AP: "
+ap_tenants_txt: .asciiz "Moradores:\n"
+ap_car_txt: .asciiz "Carro:\n"
+ap_moto_txt: .asciiz "Moto:\n"
+ap_model_txt: .asciiz "Modelo: "
+ap_color_txt: .asciiz "Cor: "
+unexpected_error1_info_txt: .asciiz " - Log: Flag de automovel nao reconhecida\n"
+unexpected_error2_info_txt: .asciiz " - Log: Print all apartments\n"
+unexpected_error3_info_txt: .asciiz " - Log: Print one apartments\n"
 
 .text
 .globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto
+.globl empty_apartment_out, new_line, tab, ap_num_out, ap_tenants_out, ap_car_out, ap_moto_out, ap_model_out, ap_color_out, unexpected_error1_info, unexpected_error2_info, unexpected_error3_info
 
 abort_invalid_ap:
     la $a0, abort_invalid_ap_txt
@@ -56,5 +67,56 @@ invalid_auto:
 
 no_space_auto:
     la $a0, no_space_auto_out
+    jal print_str
+    j start
+
+new_line:
+    la $a0, new_line_txt
+    jal print_str
+    jr $ra
+tab:
+    la $a0, tab_txt
+    jal print_str
+    jr $ra
+# cmd_6
+empty_apartment_out:
+    la $a0, empty_apartment_txt
+    jal print_str
+    jr $ra
+ap_num_out:
+    la $a0, ap_num_txt
+    jal print_str
+    jr $ra
+ap_tenants_out:
+    la $a0, ap_tenants_txt
+    jal print_str
+    jr $ra
+ap_car_out:
+    la $a0, ap_car_txt
+    jal print_str
+    jr $ra
+ap_moto_out:
+    la $a0, ap_moto_txt
+    jal print_str
+    jr $ra
+ap_model_out:
+    la $a0, ap_model_txt
+    jal print_str
+    jr $ra
+ap_color_out:
+    la $a0, ap_color_txt
+    jal print_str
+    jr $ra
+unexpected_error1_info:
+    jal print_str
+    la $a0, unexpected_error1_info_txt
+    jal print_str
+    jr $ra
+unexpected_error2_info:
+    la $a0, unexpected_error2_info_txt
+    jal print_str
+    j start
+unexpected_error3_info:
+    la $a0, unexpected_error3_info_txt
     jal print_str
     j start
