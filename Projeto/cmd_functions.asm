@@ -8,10 +8,12 @@ cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
 cmd_4_ap_n: .asciiz "Falha: AP invalido"
 cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
 nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
+cmd_5_limpar_ap_fn: .asciiz "limpar_ap-<apt>\n"
+limpar_ap_n: .asciiz "Falha: AP invalido"
 input_file: .space 1000000
 
 .text
-.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn
+.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn, limpar_ap_fn
 
 
 help_fn:                                                                # comando help
@@ -564,3 +566,47 @@ rm_auto_fn:                                                                     
         jal print_str
  
         j start
+
+limpar_ap_fn: 
+
+    addi $a0, $zero, 1
+    la $a1, input
+    jal get_fn_option   # executa a funcao
+    add $a0, $v0, $zero  # adiciona o valor da funcao em a0
+    jal str_to_int
+    add $a0, $v0, $zero
+
+    jal get_ap_index # Transforma o numero do apartamento em um unico numero
+    add $t0, $v0, $zero 
+    
+
+    ble $t0, $zero, erro_ap_invalido # verifica se o nÃºmero do apartamento Ã© vÃ¡lido
+    bgt $t0, 40, erro_ap_invalido
+    j contador
+
+    erro_ap_invalido:
+    # cÃ³digo para tratar o erro de AP invÃ¡lido
+    li $v0, 4
+    la $a0, limpar_ap_n
+    jal print_str
+    syscall
+
+    contador:
+    la $t4, building            # carrega o endereço da estrutura building
+
+    addi $t1, $zero, 40         # quantidade de bytes por apartamento
+    addi $t0, $t0, -1           # subtrai 1 do apartamento
+    mult $t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo $t2					# Lo: offset do apartamento escolhido
+    addi $t0, $zero, 9
+    add $t4, $t4, $t2           # soma o offset ao endereço base (gera o primeiro byte do apartamento)
+
+    loop_limpar:
+    addi $t4, $t4, 4
+    addi $t0, $t0, -1
+    sw $0, 0($t4)
+    bnez $t0, loop_limpar
+
+	fim:
+
+    j start        

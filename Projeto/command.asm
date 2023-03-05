@@ -39,6 +39,7 @@ ad_morador: .asciiz "ad_morador"
 rm_morador: .asciiz "rm_morador"
 salvar: .asciiz "salvar"
 recarregar: .asciiz "recarregar"
+limpar_ap: .asciiz "limpar_ap"
 
 
 rm_auto: .asciiz "rm_auto"
@@ -96,6 +97,10 @@ stack_reg
         la $a0, salvar
         jal strncmp
         beqz $v0, salvar_fn
+
+         la $a0, limpar_ap
+        jal strncmp
+        beqz $v0, limpar_ap_fn
 
         la $a0, recarregar
         jal strncmp
