@@ -569,59 +569,59 @@ rm_auto_fn:                                                                     
  
         j start
 
-limpar_ap_method: 
+limpar_ap_method:                       # codigo de limpar apartamento
 
-    add $t0, $a0, $zero
+    add $t0, $a0, $zero                 # copia o valor contido em $a0 para o registrador $t0
+                                        # verifica se o numero do apartamento eh valido
+    ble $t0, $zero, erro_ap_invalido    # se for menor ou igual a 0 o ap eh invalido
+    bgt $t0, 40, erro_ap_invalido       # se for maior que 40 o ap eh invalido
+    j contador                          # se o apartamento for valido vai para o contador
 
-    ble $t0, $zero, erro_ap_invalido # verifica se o nÃºmero do apartamento Ã© vÃ¡lido
-    bgt $t0, 40, erro_ap_invalido
-    j contador
+    erro_ap_invalido:                   # codigo para tratar o erro de AP invalido
+                                        
+    li $v0, 4                           # carrega o valor 4 no registrador $v0
+    la $a0, limpar_ap_n                 # carrega mensagem de ap invalido em a0
+    addi $sp, $sp, -4                   # decrementa o valor do registrador $sp em 4 bytes para alocar espaço na pilha para armazenar o registrador de retorno $ra.
+    sw $ra, 0($sp)                      # armazena o valor do registrador de retorno $ra na pilha      
+    jal print_str                       # chama a funcao print string
+    lw $ra, 0($sp)                      # carrega o valor do registrador de retorno $ra da pilha
+    addi $sp, $sp, 4                    # incrementa o valor do registrador $sp em 4 bytes para liberar o espaço alocado anteriormente na pilha.
+    syscall                             # imprime 
 
-    erro_ap_invalido:
-    # cÃ³digo para tratar o erro de AP invÃ¡lido
-    li $v0, 4
-    la $a0, limpar_ap_n
-    addi $sp, $sp, -4
-    sw $ra, 0($sp)
-    jal print_str
-    lw $ra, 0($sp)
-    addi $sp, $sp, 4
-    syscall
+    contador:                           # funcao contador
+    la $t4, building                    # carrega o endereço da estrutura building
 
-    contador:
-    la $t4, building            # carrega o endereço da estrutura building
+    addi $t1, $zero, 40                 # quantidade de bytes por apartamento
+    addi $t0, $t0, -1                   # subtrai 1 do apartamento
+    mult $t0, $t1			            # multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo $t2					        # Lo: offset do apartamento escolhido
+    addi $t0, $zero, 9                  # calcula o endereço adicionando 9
+    add $t4, $t4, $t2                   # soma o offset ao endereço base (gera o primeiro byte do apartamento)
 
-    addi $t1, $zero, 40         # quantidade de bytes por apartamento
-    addi $t0, $t0, -1           # subtrai 1 do apartamento
-    mult $t0, $t1			# multiplica o numero de bytes do apartamento pelo indice do apartamento
-    mflo $t2					# Lo: offset do apartamento escolhido
-    addi $t0, $zero, 9
-    add $t4, $t4, $t2           # soma o offset ao endereço base (gera o primeiro byte do apartamento)
+    loop_limpar:                        # loop que limpa os apartamentos
+    addi $t4, $t4, 4                    # libera uma posicao na stack
+    addi $t0, $t0, -1                   # apaga 
+    sw $0, 0($t4)                       # salva o apartamento limpo em $t4
+    bnez $t0, loop_limpar               # se o character nao for zero, reinicia a funcao loop_limpar
 
-    loop_limpar:
-    addi $t4, $t4, 4
-    addi $t0, $t0, -1
-    sw $0, 0($t4)
-    bnez $t0, loop_limpar
+	fim:                                # funcao para terminar 
 
-	fim:
+    jr $ra                              # return
 
-    jr $ra
+    limpar_ap_fn:                       # funcao de limpar apartamento
 
-    limpar_ap_fn:
+    addi $a0, $zero, 1                  # adiciona o valor 1 ao registrador $zero e armazena o resultado no registrador $a0.
+    la $a1, input                       # extrai o numero do apartamento do input
+    jal get_fn_option                   # executa a funcao
+    add $a0, $v0, $zero                 # adiciona o valor da funcao em a0
+    jal str_to_int                      # chama a funcao str_to_int
+    add $a0, $v0, $zero                 # copia o valor contido em $v0 para o registrador $a0
+    jal get_ap_index                    # transforma o numero do apartamento em um unico numero
+    add $a0, $v0, $zero                 # copia o valor contido em $v0 para o registrador $a0
 
-    addi $a0, $zero, 1
-    la $a1, input
-    jal get_fn_option   # executa a funcao
-    add $a0, $v0, $zero  # adiciona o valor da funcao em a0
-    jal str_to_int
-    add $a0, $v0, $zero
-    jal get_ap_index # Transforma o numero do apartamento em um unico numero
-    add $a0, $v0, $zero
+    jal limpar_ap_method                # chama a funcao limpar_ap_method
 
-    jal limpar_ap_method
-
-    j start
+    j start                             # desvia para o inicio 
 
 info_geral_fn:
 
