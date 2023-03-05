@@ -2,6 +2,7 @@
 help_out: .asciiz "Esta eh a lista dos comandos disponiveis\n    cmd_1. ad_morador-<ap>-<morador>: adiciona um morador ao apartamento\n"
 
 arquivo: .asciiz "C:\\arquivos\\output.txt"
+info_geral_out: .asciiz "Nao vazios:    xxxx (xxx%)\nVazios:        xxxx (xxx%)\n"
 
 cmd_4: .asciiz "rm_auto-<apt>-<tipo>-<modelo>-<cor>\n"
 cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
@@ -11,7 +12,7 @@ nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 input_file: .space 1000000
 
 .text
-.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn
+.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn, info_geral_fn
 
 
 help_fn:                                                                # comando help
@@ -564,3 +565,118 @@ rm_auto_fn:                                                                     
         jal print_str
  
         j start
+
+info_geral_fn:
+
+    la $t0, building                # carrega o endereco de building
+    li $t1, 40                      # bytes por apartamento
+    li $t2, 39                      # numero de apartamentos
+
+    add $t3, $zero, $zero       # apartamentos vazios
+    
+
+    loop_info_geral:
+        addi $t2, $t2, -1
+        beqz $t2, end_info_geral    	
+        lw $t4, 4($t0)              # carrega o numero de moradores do apartamento
+        add $t0, $t0, $t1
+        beqz $t4, loop_info_geral
+
+        addi $t3, $t3, 1
+        bnez $t2, loop_info_geral
+
+    end_info_geral:
+        li $t7, 10
+        mult	$t7, $t3			# $t7 * $t3 = Hi and Lo registers
+        mflo	$t8					# copy Lo to $t2
+        
+        li $t2, 4
+        div		$t8, $t2			# $t3 / $t1
+        mflo	$t2					# $t2 = floor($t3 / $t1) 
+
+        # addi $t5, $zero, 100
+        # mult	$t4, $t5			# $t4 * $t3 = Hi and Lo registers
+        # mflo	$t2					# copy Lo to $t2
+
+        add $a0, $t3, $zero
+        li $a1, 4
+        la $a2, buffer_int_to_str
+        jal int_to_string
+
+        la $a1, buffer_int_to_str
+        la $t5, info_geral_out
+        addi $a0, $t5, 15
+        li $a2, 4
+        jal memcpy
+
+        la $t5, info_geral_out
+        li $t6, 40
+        sb $t6, 20($t5)
+
+        # ----------------------------------
+
+        add $a0, $t2, $zero
+        li $a1, 4
+        la $a2, buffer_int_to_str
+        jal int_to_string
+
+        la $a1, buffer_int_to_str
+        la $t5, info_geral_out
+        addi $a1, $a1, 1
+        addi $a0, $t5, 21
+        li $a2, 3
+        jal memcpy
+
+        la $t5, info_geral_out
+        li $t6, 41
+        sb $t6, 25($t5)
+
+        # ---------------------------------
+
+        addi $t5, $zero 40
+        sub $a0, $t5, $t3
+        li $a1, 4
+        la $a2, buffer_int_to_str
+        jal int_to_string
+
+        la $a1, buffer_int_to_str
+        la $t5, info_geral_out
+        addi $a0, $t5, 42
+        li $a2, 4
+        jal memcpy
+
+        la $t5, info_geral_out
+        li $t6, 40
+        sb $t6, 47($t5)
+
+        # ----------------------------------
+
+        addi $t5, $zero, 100
+        sub $a0, $t5, $t2
+        li $a1, 4
+        la $a2, buffer_int_to_str
+        jal int_to_string
+
+        la $a1, buffer_int_to_str
+        la $t5, info_geral_out
+        addi $a1, $a1, 1
+        addi $a0, $t5, 48
+        li $a2, 3
+        jal memcpy
+
+        la $t5, info_geral_out
+        li $t6, 41
+        sb $t6, 52($t5)
+
+        # ---------------------------------
+
+
+
+        la $a0, info_geral_out
+        jal print_str
+
+        j start
+
+
+        
+        

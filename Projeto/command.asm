@@ -39,6 +39,7 @@ ad_morador: .asciiz "ad_morador"
 rm_morador: .asciiz "rm_morador"
 salvar: .asciiz "salvar"
 recarregar: .asciiz "recarregar"
+info_geral: .asciiz "info_geral"
 
 
 rm_auto: .asciiz "rm_auto"
@@ -100,6 +101,10 @@ stack_reg
         la $a0, recarregar
         jal strncmp
         beqz $v0, recarregar_fn
+
+        la $a0, info_geral
+        jal strncmp
+        beqz $v0, info_geral_fn
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
