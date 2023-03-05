@@ -11,10 +11,11 @@ cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
 nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
 cmd_5_limpar_ap_fn: .asciiz "limpar_ap-<apt>\n"
 limpar_ap_n: .asciiz "Falha: AP invalido"
+cmd_10_formatar: .asciiz "formatar"
 input_file: .space 1000000
 
 .text
-.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn, limpar_ap_fn, info_geral_fn
+.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn, limpar_ap_fn, info_geral_fn, formatar_fn
 
 
 help_fn:                                                                # comando help
@@ -568,18 +569,9 @@ rm_auto_fn:                                                                     
  
         j start
 
-limpar_ap_fn: 
+limpar_ap_method: 
 
-    addi $a0, $zero, 1
-    la $a1, input
-    jal get_fn_option   # executa a funcao
-    add $a0, $v0, $zero  # adiciona o valor da funcao em a0
-    jal str_to_int
-    add $a0, $v0, $zero
-
-    jal get_ap_index # Transforma o numero do apartamento em um unico numero
-    add $t0, $v0, $zero 
-    
+    add $t0, $a0, $zero
 
     ble $t0, $zero, erro_ap_invalido # verifica se o nÃºmero do apartamento Ã© vÃ¡lido
     bgt $t0, 40, erro_ap_invalido
@@ -589,7 +581,11 @@ limpar_ap_fn:
     # cÃ³digo para tratar o erro de AP invÃ¡lido
     li $v0, 4
     la $a0, limpar_ap_n
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
     jal print_str
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
     syscall
 
     contador:
@@ -610,7 +606,22 @@ limpar_ap_fn:
 
 	fim:
 
-    j start        
+    jr $ra
+
+    limpar_ap_fn:
+
+    addi $a0, $zero, 1
+    la $a1, input
+    jal get_fn_option   # executa a funcao
+    add $a0, $v0, $zero  # adiciona o valor da funcao em a0
+    jal str_to_int
+    add $a0, $v0, $zero
+    jal get_ap_index # Transforma o numero do apartamento em um unico numero
+    add $a0, $v0, $zero
+
+    jal limpar_ap_method
+
+    j start
 
 info_geral_fn:
 
@@ -723,6 +734,15 @@ info_geral_fn:
 
         j start
 
+formatar_fn:
 
-        
-        
+    addi $t9, $zero, 0 #soma 1 ao registrador "t0" até 40 vezes
+    loop_limpar_tudo: 
+    addi $t9, $t9, 1 #soma 1 ao registrador "" até 40 vezes
+    add $a0, $t9, $zero
+    jal limpar_ap_method
+    bne $t9, 40, loop_limpar_tudo
+    beq $t9, 40, fim_tudo 
+
+    fim_tudo:
+    j start 
