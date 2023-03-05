@@ -45,6 +45,7 @@ help_fn:                                                                # comand
     j start
 
 
+#cmd_1
 ad_morador_fn: # adiciona um morador a um apartamento: ad_morador-<apartamento>-<nome do morador>
 
     # valida numero do apartamento
@@ -108,6 +109,7 @@ ad_morador_fn: # adiciona um morador a um apartamento: ad_morador-<apartamento>-
         j add_morador_conclusion
         
 
+#cmd_2
 rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<nome do morador>
 
     # valida numero do apartamento
@@ -190,6 +192,7 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
 
         j rm_morador_conclusion         # finaliza o procedimento
 
+#cmd_3
 ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>-<modelo>-<cor>
     # verificacoes
     # valida numero do apartamento
@@ -291,51 +294,7 @@ ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>
         j start
 
 
-salvar_fn:
-    
-    la $a0, arquivo
-    li $a1, 1
-    li $a2, 0
-    li $v0, 13
-    syscall
-
-    add $s7, $zero, $v0 # file descriptor
-
-    la $t0, building
-    li $t1, 40  # bytes per apartment
-    li $t2, 40
-
-    write_ap:
-        lw $t3, 0($t0)
-        add $a0, $zero, $t3
-        li $a1, 4
-        la $a2, buffer_int_to_str
-        jal int_to_string
-        move $a0, $s7
-        la $a1, buffer_int_to_str
-        addi $a2, $zero, 4
-        li $v0, 15
-        syscall
-        
-        move $a0, $s7
-        la $a1, next_line
-        addi $a2, $zero, 1
-        li $v0, 15
-        syscall
-
-        add $t0, $t0, $t1
-        addi $t2, $t2, -1
-        blez $t2, end_write_ap
-        j write_ap
-    
-    end_write_ap:
-        
-        add $a0, $zero, $s7
-        li $v0, 16
-        syscall
-
-        j start
-
+#cmd_4
 rm_auto_fn:                                                                         #codigo de remover auto
 
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
