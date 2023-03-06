@@ -122,6 +122,7 @@ rm_morador_fn: # remove um morador de um apartamento: rm_morador-<apartamento>-<
     add $a0, $zero, $v0 # converte o numero do apartamento de string para inteito
     jal str_to_int
     
+
     add $a0, $zero, $a0 # apaga o numero do apartamento da heap
     jal free
     
@@ -256,6 +257,7 @@ ad_auto_fn: # adiciona um automovel no apartamento: ad_auto-<apartamento>-<tipo>
         addi $t7, $zero, 1  # adiciona 1 a flag de quantidade de automovel no apartamento
         sw $t7, 8($t4)  # grava na memoria
         j continue_ad_auto  # continua o procedimento de adicionar automovel
+
 
     is_moto:
         lw $t7, 8($t4)  # carrega a flag de quantidade de automovel no apartamento
@@ -424,30 +426,30 @@ recarregar_fn:
 rm_auto_fn:                                                                         #codigo de remover auto
 
     addi $a0, $zero, 1  # pega a opcao da posicao 1 
-    la $a1, input
+    la $a1, input # input do terminal
     jal get_fn_option   # executa a funcao
     add $t0, $zero, $v0 # escreve o endereco da opcao em $t8
-    addi $t9, $0, 0
+    addi $t9, $0, 0 # adiciona o registrador t9
 
-    add $a0, $zero, $t0
-    jal str_to_int
+    add $a0, $zero, $t0  # Utilizado para converter a string armazenada em t0 em um inteiro
+    jal str_to_int # chama a funcao str_to_int
     
     
-    addi $a0, $zero, 1
-    la $a1, input
-    jal get_fn_option
+    addi $a0, $zero, 1 # Extrai o numero do apartamento do imput
+    la $a1, input # input do terminal 
+    jal get_fn_option # chama a funcao get_fn_option
     
-    add $a0, $zero, $v0
-    jal str_to_int
+    add $a0, $zero, $v0 #adiciona o string contido em v0 para o a0 para converter em inteiro
+    jal str_to_int # chama a funcao str_to_int
     
-    add $a0, $zero, $a0
-    jal free
+    add $a0, $zero, $a0 # apaga o numero do apartamento da heap
+    jal free # chama a funcao free
     
-    add $a0, $zero, $v0
-    jal get_ap_index
+    add $a0, $zero, $v0 # converte o numero do apartamento para indice
+    jal get_ap_index # chama a funcao get_ap_index
 
     add $t0, $zero, $v0 # t0: numero do apartamento
-    bltz $v0, abort_invalid_ap
+    bltz $v0, abort_invalid_ap # chama a funcao abort_invalid_ap
     #----
 
     la $t4, building    # carrega o endereçco da estrutura building
@@ -462,112 +464,112 @@ rm_auto_fn:                                                                     
     addi $t4, $t4, 28           # word do primeiro auto na estrutura ap
 
     addi $a0, $zero, 2          # extrai o tipo de automovel do input
-    la $a1, input
-    jal get_fn_option
+    la $a1, input               # input no terminal
+    jal get_fn_option           # chama a funcao get_fn_option
     add $t0, $zero, $v0         # endereco da opcao 2
     add $t2, $zero, $t0         # copia para t2 para apagar depois
     lw $t0, 0($t0)              # carrega o numero ascii do character informado
 
     
     add $a0, $zero, $t2         # apaga a opcao 2 da heap
-    jal free
+    jal free                    # chama a funcao free
     
     addi $t1, $zero, 99         # c ascii
-    bne $t0, $t1, n_e_carro    # caso o tipo informado nao seja um c, pula para a proxima verificacao
-    beq $t0, $t1, is_carro_rm  # se for c, pula para o procedimento de remover carro
+    bne $t0, $t1, n_e_carro     # caso o tipo informado nao seja um c, pula para a proxima verificacao
+    beq $t0, $t1, is_carro_rm   # se for c, pula para o procedimento de remover carro
     
     n_e_carro:
     addi $t1, $zero, 109    # m ascii
-        bne $t0, $t1, invalid_auto  # caso nao seja m nem c, o automovel e invalido. Aborta
-        beq $t0, $t1, is_moto_rm
+        bne $t0, $t1, invalid_auto  # caso nao seja m nem c, o automovel eh invalido. Aborta
+        beq $t0, $t1, is_moto_rm    # caso seja m em ambos os registradores, se valida como moto
     
 
 
     is_carro_rm:
-        lw $t2, 8($t4)
-        beqz $t2, nao_tem_carro_pra_remover 
-        j continue_rm_auto #rm carro
+        lw $t2, 8($t4)          # carrega a flag de quantidade de automovel no apartamento
+        beqz $t2, nao_tem_carro_pra_remover  # caso não haja carros na memória, se envia para o label
+        j continue_rm_auto      #continua a remocao
 
     is_moto_rm:
-        lw $t2, 8($t4)
-        li $t3, 2 
-        blt $t2, $t3, nao_tem_carro_pra_remover 
-        j continue_rm_auto 
+        lw $t2, 8($t4)          # carrega a flag de quantidade de automovel no apartamento
+        li $t3, 2               # carrega imediatamente o valor 2 no registrador t3 para adereçar se existe mais de uma moto
+        blt $t2, $t3, nao_tem_carro_pra_remover # caso comparando que que o registrador t2 tenha menos moto que o t3, o qual foi feito para ter uma moto, se leva ao label de sem automovel
+        j continue_rm_auto      #continua a remocao
  
     continue_rm_auto:
-     	li $a0, 3
-        la $a1, input
-        jal get_fn_option
-        add $t6, $zero, $v0
-        li $a0, 2
-        lw $a1, 0($t4)
-        jal get_fn_option
-        add $t7, $zero, $v0
-        add $a0, $zero, $t6
-        add $a1, $zero, $t7
-        jal strcmp
-        bnez $v0, auto_n_encontrado
+     	li $a0, 3               # Carrega a flag (3) do veiculo
+        la $a1, input           # input para digitar o veiculo que será removido
+        jal get_fn_option       # usa a funcao get_fn_option
+        add $t6, $zero, $v0     # zera o registrador t6
+        li $a0, 2               # carrega a flag (2) do veiculo
+        lw $a1, 0($t4)          # carrega o valor de t4 em a1
+        jal get_fn_option       # chama a funcao get_fn_option
+        add $t7, $zero, $v0     # 
+        add $a0, $zero, $t6     # 
+        add $a1, $zero, $t7     # 
+        jal strcmp              # chama a funcao strcmp
+        bnez $v0, auto_n_encontrado # se nao se igualar a zero, ir para a funcao auto_n_encontrado
 
-        li $a0, 4
-        la $a1, input
-        jal get_fn_option
-        add $t6, $zero, $v0
-        li $a0, 3
-        lw $a1, 0($t4)
-        jal get_fn_option
-        add $t7, $zero, $v0
-        add $a0, $zero, $t6
-        add $a1, $zero, $t7
-        jal strcmp
-        bnez $v0, auto_n_encontrado 
+        li $a0, 4               # carrega a flag (4) do veiculo
+        la $a1, input           # input para digitar o veiculo que será removido
+        jal get_fn_option       # usa a funcao get_fn_option
+        add $t6, $zero, $v0     # zera o registrador t6
+        li $a0, 3               # carrega a flag (3) do veiculo
+        lw $a1, 0($t4)          # carrega o valor de t4 em a1
+        jal get_fn_option       # chama a funcao get_fn_option
+        add $t7, $zero, $v0     # 
+        add $a0, $zero, $t6     # 
+        add $a1, $zero, $t7     # 
+        jal strcmp              # chama a funcao strcmp
+        bnez $v0, auto_n_encontrado # se nao se igualar a zero, ir para a funcao auto_n_encontrado
 
-        lw $a0, 0($t4)
-        jal free #excluiu da heap o carro
-        sw $0, 0($t4)
+        lw $a0, 0($t4)          # Carrega o valor de t4 em a0
+        jal free                # excluiu da heap o carro
+        sw $0, 0($t4)           # transfere o valor de t4 para a memória o zerando
 
-        blt $t2, 3, removeu_unico
-        beq $t2, 3, removeu_moto
+        blt $t2, 3, removeu_unico # caso o valor seja menor que a flag 3, removeu unico veiculo
+        beq $t2, 3, removeu_moto # caso o valor seja igual, vamos ver se há uma ou mais motos estacionadas
 
         removeu_unico:
-            sw $0, 8($t4)
-            j start
+            sw $0, 8($t4)       # transfere o valor de t4 para a memoria o zerando
+            j start             # fim
 
         removeu_moto:
-            li $t8, 2
-            beq $t9, 0, removeu_primeira_moto
-            sw $t8, 4($t4)
-            j start
+            li $t8, 2           # carrega a flag de moto em t8
+            beq $t9, 0, removeu_primeira_moto # envia para o chamado de remover primeira moto
+            sw $t8, 4($t4)      # transfere o valor de t4 para t8 para relacionar com a possibilidade de remover mais de uma moto
+            j start             # fim
 
         removeu_primeira_moto:
-            sw $t8, 8($t4)
-            lw $t8, 4($t4)
-            sw $zero, 4($t4)
-            sw $t8, 0($t4)
-            j start
+            sw $t8, 8($t4)      # 
+            lw $t8, 4($t4)      # 
+            sw $zero, 4($t4)    # 
+            sw $t8, 0($t4)      # 
+            j start             # fim
 
-        j start
+        j start                 # fim 
     
     remover_segunda_moto:
-        addi $t4,$t4, 4    
-        addi $t9, $t9, 1 
-        j continue_rm_auto
+        addi $t4,$t4, 4         #    
+        addi $t9, $t9, 1        # 
+        j continue_rm_auto      # chama funcao para continuar a remocao
 
     nao_tem_carro_pra_remover:
 
-        la $a0, nao_tem_carro_pra_remover_out
-        jal print_str
+        la $a0, nao_tem_carro_pra_remover_out # carrega a string de nao haver carro para remover
+        jal print_str           # imprime tal string
 
-        j start
-
-        auto_n_encontrado:
-        bnez $t9, end
-        lw $t8, 8($t4) #Compara o valor da flag para verificar se possui uma segunda moto
-        beq $t8, 3, remover_segunda_moto # Caso haja (3), envia para remover_segunda_moto
-        end:
-        la $a0, cmd_4_auto_n
-        jal print_str
+        j start                 # conclui o comando
  
-        j start
+        auto_n_encontrado:
+        bnez $t9, end           # caso não haja mais veículo na memória, ir para o fim
+        lw $t8, 8($t4)          # Compara o valor da flag para verificar se possui uma segunda moto
+        beq $t8, 3, remover_segunda_moto # Caso haja (3), envia para remover_segunda_moto
+        end:                    # funcao para acabar
+        la $a0, cmd_4_auto_n    # carrega a string de automovel nao encontrado
+        jal print_str           # imprime tal string
+ 
+        j start                 # conclui o comando
 
 limpar_ap_method:                       # codigo de limpar apartamento
 
@@ -738,11 +740,11 @@ formatar_fn:
 
     addi $t9, $zero, 0 #soma 1 ao registrador "t0" até 40 vezes
     loop_limpar_tudo: 
-    addi $t9, $t9, 1 #soma 1 ao registrador "" até 40 vezes
-    add $a0, $t9, $zero
-    jal limpar_ap_method
-    bne $t9, 40, loop_limpar_tudo
-    beq $t9, 40, fim_tudo 
+    addi $t9, $t9, 1 #soma 1 ao registrador "t9" até 40 vezes
+    add $a0, $t9, $zero #soma t9 em a0 para realizar o método
+    jal limpar_ap_method #retorna para o método limpar apartamento para realizar o loop
+    bne $t9, 40, loop_limpar_tudo #reinicia o loop caso o registrador não tenha alcançado o ultimo apartamento
+    beq $t9, 40, fim_tudo # encerra a função caso o registradr tenha alcançado o último apartamento
 
     fim_tudo:
     j start 
