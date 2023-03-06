@@ -40,8 +40,8 @@ rm_morador: .asciiz "rm_morador"
 salvar: .asciiz "salvar"
 recarregar: .asciiz "recarregar"
 info_geral: .asciiz "info_geral"
+formatar: .asciiz "formatar"
 limpar_ap: .asciiz "limpar_ap"
-
 
 rm_auto: .asciiz "rm_auto"
 ad_auto: .asciiz "ad_auto"
@@ -91,7 +91,7 @@ stack_reg
         jal strncmp
         beqz $v0, ad_auto_fn
 
-         la $a0, rm_auto
+        la $a0, rm_auto
         jal strncmp
         beqz $v0, rm_auto_fn
         
@@ -99,7 +99,7 @@ stack_reg
         jal strncmp
         beqz $v0, salvar_fn
 
-         la $a0, limpar_ap
+        la $a0, limpar_ap
         jal strncmp
         beqz $v0, limpar_ap_fn
 
@@ -110,6 +110,10 @@ stack_reg
         la $a0, info_geral
         jal strncmp
         beqz $v0, info_geral_fn
+
+        la $a0, formatar
+        jal strncmp
+        beqz $v0, formatar_fn
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
