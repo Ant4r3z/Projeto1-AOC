@@ -20,19 +20,17 @@ io_control: .word 0xffff
 .text
 
 main:
-lui $t0, 0xFFFF
-j mmio_loop
+lui $t0, 0xFFFF                             # endereco dos registradores MMIO
+j mmio_loop                                 # desvia para o loop
 
 mmio_loop:
-    lw $t1, 0($t0)
-    andi $t2, $t1, 1
-    beq $t2, $zero, mmio_loop
-    mmio_show:
-        lw $t3, 4($t0)
+    lw $t1, 0($t0)                          # t1 <- receiver ready
+    beqz $t1, mmio_loop                     # caso receiver ready seja 0 (nao ha dado em receiver data), reinicia o loop 
+    mmio_show:                              # caso seja 1, continua para a impressao do caracter
+        lw $t3, 4($t0)                      # t3 <- receiver data
         wait_transmitter:
-            lw $t4, 8($t0)
-            andi $t5, $t4, 1
-            beqz $t5, wait_transmitter
-            sw $t3, 12($t0)
-            j mmio_loop
+            lw $t4, 8($t0)                  # t4 <- transmitter ready
+            beqz $t4, wait_transmitter      # caso o transmitter ready seja 0 (transmissor nao aceita caracter para transmitir), reinicia o loop
+            sw $t3, 12($t0)                 # caso seja 1, grava o caracter a ser transmitido em transmitter data
+            j mmio_loop                     # reinicia o programa
 
