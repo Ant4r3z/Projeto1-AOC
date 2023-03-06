@@ -504,9 +504,9 @@ rm_auto_fn:                                                                     
         li $a0, 2               # carrega a flag (2) do veiculo
         lw $a1, 0($t4)          # carrega o valor de t4 em a1
         jal get_fn_option       # chama a funcao get_fn_option
-        add $t7, $zero, $v0     # 
-        add $a0, $zero, $t6     # 
-        add $a1, $zero, $t7     # 
+        add $t7, $zero, $v0     # compara o c/m salvo com o digitado
+        add $a0, $zero, $t6     # compara a cor salva com a digitada
+        add $a1, $zero, $t7     # compara o modelo salvo com o digitado
         jal strcmp              # chama a funcao strcmp
         bnez $v0, auto_n_encontrado # se nao se igualar a zero, ir para a funcao auto_n_encontrado
 
@@ -517,9 +517,9 @@ rm_auto_fn:                                                                     
         li $a0, 3               # carrega a flag (3) do veiculo
         lw $a1, 0($t4)          # carrega o valor de t4 em a1
         jal get_fn_option       # chama a funcao get_fn_option
-        add $t7, $zero, $v0     # 
-        add $a0, $zero, $t6     # 
-        add $a1, $zero, $t7     # 
+        add $t7, $zero, $v0     # compara o c/m salvo com o digitado
+        add $a0, $zero, $t6     # compara a cor salva com a digitada
+        add $a1, $zero, $t7     # compara o modelo salvo com o digitado
         jal strcmp              # chama a funcao strcmp
         bnez $v0, auto_n_encontrado # se nao se igualar a zero, ir para a funcao auto_n_encontrado
 
@@ -541,17 +541,17 @@ rm_auto_fn:                                                                     
             j start             # fim
 
         removeu_primeira_moto:
-            sw $t8, 8($t4)      # 
-            lw $t8, 4($t4)      # 
-            sw $zero, 4($t4)    # 
-            sw $t8, 0($t4)      # 
+            sw $t8, 8($t4)      # carrega o registrador da moto da segunda opção
+            lw $t8, 4($t4)      # carrega o valor no registrador t8
+            sw $zero, 4($t4)    # carrega a flag 4
+            sw $t8, 0($t4)      # zera o valor da primeira moto
             j start             # fim
 
         j start                 # fim 
     
     remover_segunda_moto:
-        addi $t4,$t4, 4         #    
-        addi $t9, $t9, 1        # 
+        addi $t4,$t4, 4         # adiciona o valor de mais um veículo   
+        addi $t9, $t9, 1        # adiciona mais uma moto no stack
         j continue_rm_auto      # chama funcao para continuar a remocao
 
     nao_tem_carro_pra_remover:
