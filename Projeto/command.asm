@@ -75,45 +75,45 @@ stack_reg
 
         la $a0, help                                                    # carrega o nome de comando help em a0
         la $a1, input                                                   # carrega a string input em a1
-        add $a3, $zero, $t1                                               # carrega o tamanho do nome do comando
+        add $a3, $zero, $t1                                             # carrega o tamanho do nome do comando
         jal strncmp                                                     # chama a funcao strncmp (compara o numero n de bytes de duas strings)
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
+        # -------------------------------------------------------------------------------------------------------------------------------------
+        la $a0, ad_morador                                              # a partir deste ponto, o programa carrega cada nome de comando 
+        jal strncmp                                                     # e compara com o informado pelo usuario
+        beqz $v0, ad_morador_fn                                         # ao encontrar, direciona para o comando escolhido
 
-        la $a0, ad_morador
-        jal strncmp
-        beqz $v0, ad_morador_fn
+        la $a0, rm_morador                                              # //
+        jal strncmp                                                     # //
+        beqz $v0, rm_morador_fn                                         # //
 
-        la $a0, rm_morador
-        jal strncmp
-        beqz $v0, rm_morador_fn
+        la $a0, ad_auto                                                 # //
+        jal strncmp                                                     # //
+        beqz $v0, ad_auto_fn                                            # //
 
-        la $a0, ad_auto
-        jal strncmp
-        beqz $v0, ad_auto_fn
-
-        la $a0, rm_auto
-        jal strncmp
-        beqz $v0, rm_auto_fn
+        la $a0, rm_auto                                                 # //
+        jal strncmp                                                     # //
+        beqz $v0, rm_auto_fn                                            # //
         
-        la $a0, salvar
-        jal strncmp
-        beqz $v0, salvar_fn
+        la $a0, salvar                                                  # //
+        jal strncmp                                                     # //
+        beqz $v0, salvar_fn                                             # //
 
-        la $a0, limpar_ap
-        jal strncmp
-        beqz $v0, limpar_ap_fn
+        la $a0, limpar_ap                                               # //
+        jal strncmp                                                     # //
+        beqz $v0, limpar_ap_fn                                          # //
 
-        la $a0, recarregar
-        jal strncmp
-        beqz $v0, recarregar_fn
+        la $a0, recarregar                                              # //
+        jal strncmp                                                     # //
+        beqz $v0, recarregar_fn                                         # //
 
-        la $a0, info_geral
-        jal strncmp
-        beqz $v0, info_geral_fn
+        la $a0, info_geral                                              # //
+        jal strncmp                                                     # //
+        beqz $v0, info_geral_fn                                         # //
 
-        la $a0, formatar
-        jal strncmp
-        beqz $v0, formatar_fn
+        la $a0, formatar                                                # //
+        jal strncmp                                                     # //
+        beqz $v0, formatar_fn                                           # //
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
@@ -123,78 +123,64 @@ stack_reg
 
 
 get_fn_option:
-    stack_reg
-    add $t0, $zero, $a1
-    la $t1, separador
-    lb $t1, 0($t1)
-    add $t2, $a0, $zero
+    stack_reg                                                           # 
+    add $t0, $zero, $a1                                                 # endereco da string para extrair a opcao
+    la $t1, separador                                                   # carreaga o endereco do separador de opcoes
+    lb $t1, 0($t1)                                                      # carrega o caracter separador em t1
+    add $t2, $a0, $zero                                                 # posicao da opcao
 
-    find_separador:
-        lb $t3, 0($t0)
-        addi $t0, $t0, 1
-        beqz $t3, abort_get_fn_op
-        bne $t3, $t1, find_separador
-        addi $t2, $t2, -1
-        beqz $t2, store_option
-        j find_separador
+    find_separador:                                                     # 
+        lb $t3, 0($t0)                                                  # carrega o byte da iteracao atual em t3
+        addi $t0, $t0, 1                                                # proximo byte
+        beqz $t3, abort_get_fn_op                                       # caso o byte seja nulo, a opcao desejada esta faltando no input. Aborta
+        bne $t3, $t1, find_separador                                    # caso nao seja o separados, reinicia
+        addi $t2, $t2, -1                                               # incrementa a posicao desejada pelo usuario
+        beqz $t2, store_option                                          # caso o contador de posicao seja 0, encontrou a opcao desejada, parte para o salvamento
+        j find_separador                                                # se ainda nao for 0, reinicia o loop ate encontrar o desejado
     
-    store_option:
-        add $t2, $t0, $zero
-        find_option_end:
-            lb $t3, 0($t2)
-            addi $t2, $t2, 1
-            beqz $t3, store_option_end
-            bne $t3, $t1, find_option_end
-            addi $t2, $t2, -1
+    store_option:                                                       # 
+        add $t2, $t0, $zero                                             # endereco do inicio da opcao
+        find_option_end:                                                # encontra o final da string da opcao desejada
+            lb $t3, 0($t2)                                              # carrega o byte
+            addi $t2, $t2, 1                                            # proximo byte
+            beqz $t3, store_option_end                                  # caso o byte seja nulo, encontrou o fim da opcao, continua 
+            bne $t3, $t1, find_option_end                               # caso o byte seja o separador, encontrou o fim da opcao, continua
+            addi $t2, $t2, -1                                           # decrementa
         
-        store_option_end:
-            sub $t2, $t2, $t0
-            addi $t2, $t2, 1
-            add $a0, $zero, $t2
-            addi $v0, $zero, 9
-            syscall
-            add $v1, $zero, $t2
-            addi $t2, $t2, -1
-            add $a2, $zero, $t2
-            add $a1, $zero, $t0
-            add $a0, $zero, $v0
-            addi $sp, $sp, -4
-            sw $ra, 0($sp)
-            jal memcpy
-            lw $ra, 0($sp)
-            addi $sp, $sp, 4
-            unstack_reg
-            jr $ra
-        
-    abort_get_fn_op:
-        unstack_reg
-        j miss_options_fn
-        jr $ra
+        store_option_end:                                               # 
+            sub $t2, $t2, $t0                                           # fim - comeco = tamanho da string da opcao
+            addi $t2, $t2, 1                                            # tamanho + 1 (para alocar a heap com espaco para o null final do memcpy)
+            add $a0, $zero, $t2                                         # numero de bytes para alocar na heap
+            addi $v0, $zero, 9                                          # aloca memoria
+            syscall                                                     #
+            add $v1, $zero, $t2                                         # tamanho da string da opcao no retorno v1
+            addi $t2, $t2, -1                                           # decrementa para o tamanho real da string (sem null)
+            add $a2, $zero, $t2                                         # tamanho da string para copia
+            add $a1, $zero, $t0                                         # endereco do inicio da opcao em input (source)
+            add $a0, $zero, $v0                                         # endereco alocado na heap (destination)
+            addi $sp, $sp, -4                                           # salva  return address na stack
+            sw $ra, 0($sp)                                              #
+            jal memcpy                                                  # copia a string para o espaco alocado na memoria
+            lw $ra, 0($sp)                                              # recupera return address
+            addi $sp, $sp, 4                                            #
+            unstack_reg                                                 #
+            jr $ra                                                      # return
 
-
-
-cmd_invalido_fn:                                                        # comando invalido
-    la $a0, cmd_invalido
-    jal print_str
-
-    j start
-
-miss_options_fn:
-    la $a0, miss_options
-    jal print_str
-
-    j start
+    abort_get_fn_op:                                                    # opcao informada nao encontrada
+        unstack_reg                                                     #
+        j miss_options_fn                                               #
+        jr $ra                                                          # return 
 
 
 free: # a0: endereco 
-    stack_reg
-    lb $t0, 0($a0)
-    sb $zero, 0($a0)
-    addi $a0, $a0, 1
-    beqz $t0, end_free
-    j free
+    stack_reg                                                           #
+    lb $t0, 0($a0)                                                      # carrega o byte em t0
+    sb $zero, 0($a0)                                                    # zera o endereco
+    addi $a0, $a0, 1                                                    # proximo byte
+    beqz $t0, end_free                                                  # caso encontre um byte nulo, encerra
+    j free                                                              # loop
 
-    end_free:
-    unstack_reg
-        jr $ra
+    end_free:                                                           #
+    unstack_reg                                                         #
+        jr $ra                                                          # retorno
         

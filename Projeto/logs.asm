@@ -15,7 +15,7 @@ recarregado_txt: .asciiz "Dados recarregados com sucesso\n"
 
 
 .text
-.globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado
+.globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado, cmd_invalido_fn, miss_options_fn
 
 abort_invalid_ap:
     la $a0, abort_invalid_ap_txt
@@ -76,3 +76,14 @@ recarregado:
     la $a0, recarregado_txt
     jal print_str
     j start
+
+
+cmd_invalido_fn:                                                        # comando invalido
+    la $a0, cmd_invalido                                                #
+    jal print_str                                                       #
+    j start                                                             #
+
+miss_options_fn:                                                        #
+    la $a0, miss_options                                                #
+    jal print_str                                                       #
+    j start                                                             #
