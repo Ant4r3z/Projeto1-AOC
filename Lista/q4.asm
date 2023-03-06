@@ -18,17 +18,17 @@ buff: .space 10
 
 .text
 main:
-    la $a0, str1
-    la $a1, str2
-    li $a3, 5
+    la $a0, str1                       # carrega o endereço da string 1 
+    la $a1, str2                       # carrega o endereço da string 2
+    li $a3, 5                          # carrega imediatamente o valor em a3
     jal strcat
-    add $v1, $v0, $zero
-    la $a0, str2
+    add $v1, $v0, $zero                # instrucao de teste
+    la $a0, str2                       # carrega o endereço da string 2 em a0
     #li $v0, 1
     #add $a0, $zero, $v1
     #syscall
-    jal print_string
-    j end
+    jal print_string                   # pula para o label print_string
+    j end                              # pula para o label end
 
 
 
@@ -88,62 +88,62 @@ strcmp:                                 # compara duas strings
 
 
 print_string:                           # funcao para printar string
-    li  $v0, 4
+    li  $v0, 4                          # carrega imediatamente o valor em v0
     syscall
 
-    jr  $ra
+    jr  $ra                             # retorna ao return address
 
 
 strncmp:                                # compara duas strings até o caracter num
-    add $t0, $zero, $a0                 
-    add $t1, $zero, $a1                 
-    add $t4, $zero, $zero               
+    add $t0, $zero, $a0                 # adiciona o valor de a0 em t0
+    add $t1, $zero, $a1                 # adiciona o valor de a1 em t1
+    add $t4, $zero, $zero               # adiciona o registrador t4
     
     strncmp_loop:                       
-        lb $t2, 0($t0)                  
-        lb $t3, 0($t1)
-        addi $v0, $zero, 1              
-        bgt $t2, $t3, end_strncmp       
-        addi $v0, $zero, -1             
-	blt $t2, $t3, end_strncmp           
-	add $v0, $zero, $zero               
-	beqz $t2, end_strncmp               
-	addi $t4, $t4, 1                    
-	bge $t4, $a3, end_strncmp           
-	addi $t0, $t0, 1                    
-	addi $t1, $t1, 1                    
-	j strncmp_loop                      
+        lb $t2, 0($t0)                  #  carrega os bytes de t0 em t2
+        lb $t3, 0($t1)                  #  carrega os bytes de t1 em t3
+        addi $v0, $zero, 1              # adiciona 1 diretamente em v0
+        bgt $t2, $t3, end_strncmp       # caso a quantidade de bytes em t2 seja maior que t3, 
+                                        # end_strncmp
+        addi $v0, $zero, -1             # subtrai 1 diretamente de v0
+	blt $t2, $t3, end_strncmp           # caso a quantidade de bytes em t2 seja menor que t3, end_strncmp
+	add $v0, $zero, $zero               # resgata o registrador v0
+	beqz $t2, end_strncmp               # caso a quantidade de bytes em t2 = 0, fim
+	addi $t4, $t4, 1                    # incrementa no registrador
+	addi $t0, $t0, 1                    # incrementa no registrador
+	addi $t1, $t1, 1                    # incrementa no registrador
+	j strncmp_loop                      # retoma o loop
     
-    end_strncmp:
-        jr $ra
+    end_strncmp:                    
+        jr $ra                          # retorna o registrador ra
 
 
-strcat:
-    add $t0, $a0, $zero
-    add $t1, $a1, -1
+strcat:                                 # 
+    add $t0, $a0, $zero                 # retoma os registradores
+    add $t1, $a1, -1                    # inicia o decremento
     
     find_str_end:
-    	addi $t1, $t1, 1
-    	lb $t2, 0($t1)
-    	bnez $t2, find_str_end
-    	j strcat_loop
+    	addi $t1, $t1, 1                # incrementa 1 no registrador t1
+    	lb $t2, 0($t1)                  # carrega os bytes de t1 em t2
+    	bnez $t2, find_str_end          # caso t2 possua zero bytes se vai pro fim
+    	j strcat_loop                   # pula para strcat_loop
     
     strcat_loop:
-    	lb $t2, 0($t0)
-    	sb $t2, 0($t1)
-    	addi $t0, $t0, 1
-    	addi $t1, $t1, 1
-    	lb $t2, 0($t0)
-    	beqz $t2, end_strcat
-    	j strcat_loop
+    	lb $t2, 0($t0)                  #  carrega os bytes de t0 em t2
+    	sb $t2, 0($t1)                  #  carrega os bytes de t1 em t2
+    	addi $t0, $t0, 1                #  incrementa no registrador t0
+    	addi $t1, $t1, 1                #  incrementa no registrador t1
+    	lb $t2, 0($t0)                  # carrega os bytes de t0 em t2
+    	beqz $t2, end_strcat            # caso t2 seja zero, levar para end_strcat
+    	j strcat_loop                   # pular para strcat_loop
     	
     end_strcat:
-    jr $ra
+    jr $ra                              # retorna ao ra
     	
     
 
 end:
-    li $v0, 10
-    syscall
+    li $v0, 10                          # carrega imediatamanete no registrador
+    syscall                             
 
 

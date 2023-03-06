@@ -48,15 +48,15 @@
         j loop                  # volta ao topo do loop
    
   exit:
-        jr $ra
+        jr $ra                  # retorna o valor ao return address
 
   print:
-        li $v0, 4
+        li $v0, 4               # adiciona imediatamente o valor no registrador
         la $a0, printedMessage  # imprime a mensagem
         syscall
 
-        li $v0, 1
-        move $a0, $t0
+        li $v0, 1               # adiciona imediatamente o valor no registrador
+        move $a0, $t0           # muda o valor de t0 para a0
         syscall
 
-        jr $ra
+        jr $ra                  # retorna ao ra
