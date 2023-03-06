@@ -45,6 +45,7 @@ limpar_ap: .asciiz "limpar_ap"
 
 rm_auto: .asciiz "rm_auto"
 ad_auto: .asciiz "ad_auto"
+info_ap: .asciiz "info_ap"
 
 
 
@@ -111,6 +112,10 @@ stack_reg
         la $a0, formatar                                                # //
         jal strncmp                                                     # //
         beqz $v0, formatar_fn                                           # //
+        
+        la $a0, info_ap                                                # //
+        jal strncmp                                                     # //
+        beqz $v0, info_ap_fn                                           # //
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao

@@ -15,6 +15,8 @@ recarregado_txt: .asciiz "Dados recarregados com sucesso\n"
 
 cmd_invalido: .asciiz "Comando invalido\n"
 miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
+new_line_txt: .asciiz "\n"
+tab_txt: .asciiz "\t"
 
 # cmd_6
 empty_apartment_txt: .asciiz "Apartamento vazio\n"
@@ -34,7 +36,7 @@ unexpected_error3_info_txt: .asciiz " - Log: Print one apartments\n"
 
 .text
 .globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado, cmd_invalido_fn, miss_options_fn
-
+.globl empty_apartment_out, new_line, tab, ap_num_out, ap_tenants_out, ap_car_out, ap_moto_out, ap_model_out, ap_color_out, unexpected_error1_info, unexpected_error2_info, unexpected_error3_info
 abort_invalid_ap:
     la $a0, abort_invalid_ap_txt
     jal print_str
@@ -107,43 +109,85 @@ miss_options_fn:                                                        #
     j start                                                             #
 
 
-
+new_line:
+    la $a0, new_line_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+    jal print_str
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr $ra
+tab:
+    la $a0, tab_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+    jal print_str
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
+    jr $ra
 
 
 # cmd_6
 empty_apartment_out:
     la $a0, empty_apartment_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 ap_num_out:
     la $a0, ap_num_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 ap_tenants_out:
     la $a0, ap_tenants_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 ap_car_out:
     la $a0, ap_car_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 ap_moto_out:
     la $a0, ap_moto_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 ap_model_out:
     la $a0, ap_model_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 ap_color_out:
     la $a0, ap_color_txt
+    addi $sp, $sp, -4
+    sw $ra, 0($s0)
     jal print_str
+    lw $ra, 0($s0)
+    addi $sp, $sp, 4
     jr $ra
 unexpected_error1_info:
-    jal print_str
     la $a0, unexpected_error1_info_txt
     jal print_str
-    jr $ra
+    j start
 unexpected_error2_info:
     la $a0, unexpected_error2_info_txt
     jal print_str
