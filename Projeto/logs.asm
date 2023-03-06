@@ -9,10 +9,13 @@ add_morador_conclusion_txt: .asciiz "Morador adicionado com sucesso!\n"
 rm_morador_conclusion_txt: .asciiz "Morador removido com sucesso!\n"
 invalid_auto_out: .asciiz "As opcoes de tipo sao apenas 'c' (carro) e 'm' (moto)\n"
 no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
+automovel_adicionado_txt: .asciiz "Automovel adicionado com sucesso!\n"
+salvo_txt: .asciiz "Dados salvos com sucesso\n"
+recarregado_txt: .asciiz "Dados recarregados com sucesso\n"
 
 
 .text
-.globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto
+.globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado
 
 abort_invalid_ap:
     la $a0, abort_invalid_ap_txt
@@ -56,5 +59,20 @@ invalid_auto:
 
 no_space_auto:
     la $a0, no_space_auto_out
+    jal print_str
+    j start
+
+auto_adicionado:
+    la $a0, automovel_adicionado_txt
+    jal print_str
+    j start
+
+salvo:
+    la $a0, salvo_txt
+    jal print_str
+    j start
+
+recarregado:
+    la $a0, recarregado_txt
     jal print_str
     j start
