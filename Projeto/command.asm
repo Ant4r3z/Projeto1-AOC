@@ -47,9 +47,6 @@ rm_auto: .asciiz "rm_auto"
 ad_auto: .asciiz "ad_auto"
 
 
-# textos de saida de comandos
-cmd_invalido: .asciiz "Comando invalido\n"
-miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
 
 
 .text

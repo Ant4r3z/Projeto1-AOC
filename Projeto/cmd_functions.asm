@@ -5,13 +5,12 @@ arquivo: .asciiz "C:\\arquivos\\output.txt"
 info_geral_out: .asciiz "Nao vazios:    xxxx (xxx%)\nVazios:        xxxx (xxx%)\n"
 
 cmd_4: .asciiz "rm_auto-<apt>-<tipo>-<modelo>-<cor>\n"
-cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado"
-cmd_4_ap_n: .asciiz "Falha: AP invalido"
-cmd_4_tipo_n: .asciiz "Falha: tipo invalido"
-nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover"
+cmd_4_auto_n: .asciiz "Falha: automóvel nao encontrado\n"
+cmd_4_ap_n: .asciiz "Falha: AP invalido\n"
+cmd_4_tipo_n: .asciiz "Falha: tipo invalido\n"
+nao_tem_carro_pra_remover_out: .asciiz "Falha: Nao ha carros para remover\n"
 cmd_5_limpar_ap_fn: .asciiz "limpar_ap-<apt>\n"
-limpar_ap_n: .asciiz "Falha: AP invalido"
-cmd_10_formatar: .asciiz "formatar"
+limpar_ap_n: .asciiz "Falha: AP invalido\n"
 input_file: .space 1000000
 
 .text

@@ -13,6 +13,8 @@ automovel_adicionado_txt: .asciiz "Automovel adicionado com sucesso!\n"
 salvo_txt: .asciiz "Dados salvos com sucesso\n"
 recarregado_txt: .asciiz "Dados recarregados com sucesso\n"
 
+cmd_invalido: .asciiz "Comando invalido\n"
+miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
 
 .text
 .globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado, cmd_invalido_fn, miss_options_fn
