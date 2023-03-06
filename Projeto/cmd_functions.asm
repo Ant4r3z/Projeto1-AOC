@@ -806,3 +806,202 @@ formatar_fn:
 
     fim_tudo:
     j start 
+
+
+
+
+#cmd_6
+info_ap_fn:
+
+    # valida numero do apartamento
+
+    addi $a0, $zero, 1              # extrai o numero do apartamento do input
+    la $a1, input
+    jal get_fn_option
+    add $t0, $zero, $v0             # salva em $s0 o valor de $v0
+
+    # se for all
+    
+    add $a0, $zero, $t0	            # $a0 recebe o valor do input
+    la $a1, info_app_all_txt        # salva o endereço da string "all" em $a1
+    jal strcmp                      # $a1 e $a0 são comparados
+    beqz $v0, info_ap_all           # se sao iguais, go to info_ap_all
+        
+    # se não for all
+    
+    add $a0, $zero, $t0             # converte o numero do apartamento de string para inteito
+    jal str_to_int
+    
+    add $a0, $zero, $a0             # apaga o numero do apartamento da heap
+    jal free
+    
+    add $a0, $zero, $v0             # converte o numero do apartamento para indice
+    jal get_ap_index
+
+    add $t0, $zero, $v0             # t0: indice do apartamento 
+    bltz $v0, abort_invalid_ap      # caso o retorno de get_ap_index seja negativo, o apartamento não existe. abortar
+
+    # info_ap
+
+    la $t4, building                # carrega o endereço da estrutura building
+
+    addi $t1, $zero, 40             # quantidade de bytes por apartamento
+    addi $t0, $t0, -1               # subtrai 1 do apartamento
+    mult	$t0, $t1			    # multiplica o numero de bytes do apartamento pelo indice do apartamento
+    mflo	$t2					    # Lo: offset do apartamento escolhido
+    
+    add $s4, $t4, $t2               # soma o offset ao endereço base (gera o primeiro byte do apartamento)
+
+    info_ap_one:
+
+        print_ap:
+
+            jal new_line                # \n
+            jal	ap_num_out			    # AP: 
+
+            lw $t3, 0($t4)              # load numero do apartamento
+            add $a0, $t3, $zero         # passa para $a0 o numero do ap
+            li $a1, 4                   # numero de bytes
+            la $a2, buffer_int_to_str   # referencia o buffer
+            jal int_to_string           # transforma em string
+
+            la $a0, buffer_int_to_str         # passa o resultado como argumento
+            jal print_str               
+
+
+
+            # verificacao de apartamento vazio
+    
+            addi $t5, $t4, 4                # onde esta o numero de moradores
+            lw $t6, 0($t5)
+            beqz $t6, empty_apartment
+        
+        # ignorar por enquanto
+        print_tenants:
+
+            jal ap_tenants_out          # Moradores: 
+
+            add $t7, $t5, 28            # limite do iterador (ultimo slot de morador disponivel)
+
+            print_tenants_info:
+                addi $t5, $t5, 4                    # endereco do prox morador
+                blt $t5, $t7, loop_tenants_info     # se não chegou ao ultimo slot, pula para o proximo
+                j print_vehicle                     # else, vai para a seção veiculos
+
+            loop_tenants_info:
+                lw $t6, 0($t5)                      # $t6 recebe a word armazenada em t5
+                bnez $t6, print_tenant              # se o valor não for nulo, printa o nome
+                j print_tenants_info                # retorna ao loop
+
+            print_tenant:
+                jal tab                 # "    "
+                add $a0, $zero, $t6     # passa $t6 como argumento
+                jal print_str           # printa o nome do morador
+                jal new_line            # quebra de linha
+                j print_tenants_info
+            
+        print_vehicle:
+
+            addi $t7, $t4, 36       # carrega em $t7 o endereço da flag de veículos
+            lw $t7, 0($t7)             # carrega a word
+
+            # switch
+            beq $t7, 0, flag_0
+            beq $t7, 1, flag_1
+            beq $t7, 2, flag_2
+            beq $t7, 3, flag_2
+
+            add $a0, $t4, $zero     # em caso de erro
+            j unexpected_error1_info
+
+            # opcoes
+
+            flag_0: j end_info_ap_one
+
+            flag_1:
+
+                jal ap_car_out      # Carro: 
+
+                jal tab
+                jal ap_model_out    # Modelo:
+
+                li $a0, 2           # passa o modelo 
+                lw $a1, 28($t4)     # passa o endereço guardado no slot de carro
+                jal get_fn_option
+                add $a0, $zero, $v0 # passa o modelo como argumento
+                jal print_str
+                jal new_line
+
+                jal tab
+                jal ap_color_out    # Cor:
+
+                li $a0, 3           # passa a cor 
+                lw $a1, 28($t4)     # passa o endereço guardado no slot de carro
+                jal get_fn_option
+                add $a0, $zero, $v0 # passa a cor como argumento
+                jal print_str
+                jal new_line
+
+                j end_info_ap_one
+
+            flag_2:
+
+                jal ap_car_out      # Moto: 
+
+                jal tab
+                jal ap_model_out    # Modelo:
+
+                li $a0, 2           # passa o modelo 
+                lw $a1, 28($t4)     # passa o endereço guardado no slot de carro
+                jal get_fn_option
+                add $a0, $zero, $v0 # passa o modelo como argumento
+                jal print_str
+                jal new_line
+
+                jal tab
+                jal ap_color_out    # Cor:
+
+                li $a0, 3           # passa a cor 
+                lw $a1, 28($t4)     # passa o endereço guardado no slot de carro
+                jal get_fn_option
+                add $a0, $zero, $v0 # passa a cor como argumento
+                jal print_str
+                jal new_line
+
+                beq $t7, 3, flag_3
+                j end_info_ap_one
+
+            flag_3:
+
+                jal tab
+                jal ap_model_out    # Modelo:
+
+                li $a0, 2           # passa o modelo 
+                lw $a1, 32($t4)      # passa o endereço guardado no slot de carro
+                jal get_fn_option
+                add $a0, $zero, $v0 # passa o modelo como argumento
+                jal print_str
+                jal new_line
+
+                jal tab
+                jal ap_color_out    # Cor:
+
+                li $a0, 3           # passa a cor 
+                lw $a1, 32($t4)      # passa o endereço guardado no slot de carro
+                jal get_fn_option
+                add $a0, $zero, $v0 # passa a cor como argumento
+                jal print_str
+                jal new_line
+
+                j end_info_ap_one
+
+            
+        empty_apartment:
+            jal empty_apartment_out
+        
+        end_info_ap_one:
+            # fim
+            j unexpected_error3_info
+
+    info_ap_all:
+        j unexpected_error2_info
