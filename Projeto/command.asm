@@ -63,7 +63,7 @@ info_ap: .asciiz "info_ap"
 .globl get_fn_option, free, process_command
 
 process_command:                                                        # funcao que processa o comando do usuario
-stack_reg                                                               # salva registradores na stack
+# stack_reg                                                               # salva registradores na stack
     la $t0, input                                                       # carrega a string input
     lb $t1, 0($t0)
     beqz $t1, end_process
@@ -87,48 +87,58 @@ stack_reg                                                               # salva 
         beqz $v0, help_fn                                               # se for igual (v0 = 0), encontrou a funcao e a executa
         # -------------------------------------------------------------------------------------------------------------------------------------
         la $a0, ad_morador                                              # a partir deste ponto, o programa carrega cada nome de comando 
+        li $a3, 10                                                      # tamanho do comando
         jal strncmp                                                     # e compara com o informado pelo usuario
         beqz $v0, ad_morador_fn                                         # ao encontrar, direciona para o comando escolhido
 
         la $a0, rm_morador                                              # //
+        li $a3, 10
         jal strncmp                                                     # //
         beqz $v0, rm_morador_fn                                         # //
 
         la $a0, ad_auto                                                 # //
+        li $a3, 7
         jal strncmp                                                     # //
         beqz $v0, ad_auto_fn                                            # //
 
         la $a0, rm_auto                                                 # //
+        li $a3, 7
         jal strncmp                                                     # //
         beqz $v0, rm_auto_fn                                            # //
         
         la $a0, salvar                                                  # //
+        li $a3, 6
         jal strncmp                                                     # //
         beqz $v0, salvar_fn                                             # //
 
         la $a0, limpar_ap                                               # //
+        li $a3, 9
         jal strncmp                                                     # //
         beqz $v0, limpar_ap_fn                                          # //
 
         la $a0, recarregar                                              # //
+        li $a3, 10
         jal strncmp                                                     # //
         beqz $v0, recarregar_fn                                         # //
 
         la $a0, info_geral                                              # //
+        li $a3, 10
         jal strncmp                                                     # //
         beqz $v0, info_geral_fn                                         # //
 
         la $a0, formatar                                                # //
+        li $a3, 8
         jal strncmp                                                     # //
         beqz $v0, formatar_fn                                           # //
         
         la $a0, info_ap                                                # //
+        li $a3, 7
         jal strncmp                                                     # //
         beqz $v0, info_ap_fn                                           # //
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
-        unstack_reg                                                     # recupera registradores da stack
+        # unstack_reg                                                     # recupera registradores da stack
         j start                                                         # inicio do programa, pronto para aguardar um novo comando
 
 
