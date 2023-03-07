@@ -1,3 +1,12 @@
+# [BCC 2022.1] Arquitetura e Organização de Computadores
+# Lista de exercícios - Projeto 01
+# Questão 01
+# Arquitetantes:
+# - Gabriel Santos
+# - Gilvaney Leandro
+# - Joyce Mirelle
+# - Ronaldo Rodrigues
+
 .eqv R 10                                                               # DEFINE: Enter (Return) char = 10
 .eqv BS 8                                                               # DEFINE: Backpace char = 8
 
