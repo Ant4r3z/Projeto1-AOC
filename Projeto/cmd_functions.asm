@@ -263,7 +263,7 @@ ad_auto_fn:                                                 # adiciona um automo
         addi $a0, $a0, -11                                  # Ignora o inicio do input
 
         li $v0, 9                                           # aloca memoria
-        syscall     
+        syscall                                             # executa no termina
 
         sw $v0, 0($t4)                                      # registra o endereco do automovel no apartamento
         add $a2, $a0, $zero                                 # a2 <- a0: tamanho da string
@@ -280,7 +280,7 @@ salvar_fn:
     li $a1, 1       
     li $a2, 0       
     li $v0, 13      
-    syscall     
+    syscall                                                 # executa no termina
 
     add $s7, $zero, $v0                                     # file descriptor
 
@@ -300,7 +300,7 @@ salvar_fn:
         la $a1, buffer_int_to_str                           # endereco da string para ser escrita no arquivo
         addi $a2, $zero, 4                                  # 4 bytes para escrita
         li $v0, 15                                          # escreve no arquivo
-        syscall     
+        syscall                                             # executa no termina
 
         jal break_line_arquivo                              # pula uma linha no arquivo
 
@@ -314,7 +314,7 @@ salvar_fn:
         move $a0, $s7                                       #
         addi $a2, $zero, 1                                  # apenas o ultimo byte é escrito (o numero maximo de moradores e 5)
         li $v0, 15                                          # 
-        syscall                                             #
+        syscall                                             # executa no termina
 
 
         jal break_line_arquivo                              # pula uma linha o arquivo
@@ -334,7 +334,7 @@ salvar_fn:
             add $a1, $zero, $t5                             #
             add $a2, $zero, $v0                             #
             li $v0, 15                                      #
-            syscall                                         #
+            syscall                                         # executa no termina
 
             skip_null_salva_dados:                          # 
             jal break_line_arquivo                          # pula uma linha no arquivo
@@ -356,7 +356,7 @@ salvar_fn:
                 add $a1, $zero, $t4                         #
                 addi $a2, $zero, 1                          #
                 li $v0, 15                                  #
-                syscall                                     #
+                syscall                                     # executa no termina
 
 
 
@@ -375,14 +375,14 @@ salvar_fn:
         la $a1, next_line                                   # \n
         addi $a2, $zero, 1                                  # um byte para escrita
         li $v0, 15                                          # escreve
-        syscall                                             #
+        syscall                                             # executa no termina
         jr $ra                                              # retorno
 
     end_write_ap:                                           #
 
         add $a0, $zero, $s7                                 # file descriptor
         li $v0, 16                                          # fecha o arquivo
-        syscall                                             #
+        syscall                                             # executa no termina
 
         j salvo                                             # volta ao inicio do programa
 
@@ -391,7 +391,7 @@ recarregar_fn:
     li $a1, 0
     li $a2, 0
     li $v0, 13
-    syscall
+    syscall                                                 # executa no termina
 
     add $s7, $zero, $v0                                     # file descriptor
 
@@ -399,7 +399,7 @@ recarregar_fn:
     add $a0, $zero, $s7                                     
     la $a1, input_file
     li $a2, 1000000
-    syscall
+    syscall                                                 # executa no termina    
 
     la $t0, input_file                                      # endereco de input_file em t0
     la $t1, building                                        # endereco de building em t1
@@ -432,7 +432,7 @@ recarregar_fn:
             addi $a0, $v0, 1                                # tamanho do nome do morador em a0
             addi $t5, $v0, 1                                # tamanho do nome do morador em a0
             li $v0, 9                                       # aloca a memoria na heap
-            syscall
+            syscall                                         # executa no termina
 
             sw $v0, 0($t4)                                  # salva o endereco no apartamento
             
@@ -463,7 +463,7 @@ recarregar_fn:
     end_recaregar:
     add $a0, $zero, $s7                                     # fecha o arquivo
     li $v0, 16                                              #
-    syscall                                                 #
+    syscall                                                 # executa no termina
 
     j recarregado                                                 # volta ao inicio do programa
 
@@ -650,7 +650,7 @@ limpar_ap_method:                                           # codigo de limpar a
     jal print_str                                           # chama a funcao print string
     lw $ra, 0($sp)                                          # carrega o valor do registrador de retorno $ra da pilha
     addi $sp, $sp, 4                                        # incrementa o valor do registrador $sp em 4 bytes para liberar o espaço alocado anteriormente na pilha.
-    syscall                                                 # imprime 
+    syscall                                                 # executa no terminal
 
     contador:                                               # funcao contador
     la $t4, building                                        # carrega o endereço da estrutura building
@@ -664,7 +664,7 @@ limpar_ap_method:                                           # codigo de limpar a
 
     loop_limpar:                                            # loop que limpa os apartamentos
     addi $t4, $t4, 4                                        # libera uma posicao na stack
-    addi $t0, $t0, -1                                       # apaga 
+    addi $t0, $t0, -1                                       # subtrai 1 do apartamento
     sw $0, 0($t4)                                           # salva o apartamento limpo em $t4
     bnez $t0, loop_limpar                                   # se o character nao for zero, reinicia a funcao loop_limpar
 
