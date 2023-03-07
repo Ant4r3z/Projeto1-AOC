@@ -409,7 +409,7 @@ recarregar_fn:
     li $v0, 13
     syscall
 
-    # bltz $v0, arquivo_n_encontrado 
+    bltz $v0, arquivo_n_encontrado 
 
     add $s7, $zero, $v0                                     # file descriptor
 
