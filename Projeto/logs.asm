@@ -21,6 +21,7 @@ no_space_auto_out: .asciiz "Nao ha mais vagas na sua garagem\n"
 automovel_adicionado_txt: .asciiz "Automovel adicionado com sucesso!\n"
 salvo_txt: .asciiz "Dados salvos com sucesso\n"
 recarregado_txt: .asciiz "Dados recarregados com sucesso\n"
+arquivo_n_encontrado_txt: .asciiz "O arquivo de dados nao foi encontrado em "
 
 cmd_invalido: .asciiz "Comando invalido\n"
 miss_options: .asciiz "Comando incorreto, opcoes faltando\n"
@@ -46,7 +47,7 @@ auto_removido_out: .asciiz "Automovel removido com sucesso\n"
 
 .text
 .globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado, cmd_invalido_fn, miss_options_fn
-.globl empty_apartment_out, new_line, tab, ap_num_out, ap_tenants_out, ap_car_out, ap_moto_out, ap_model_out, ap_color_out, unexpected_error1_info, unexpected_error2_info, unexpected_error3_info, ad_auto_ap_vazio, auto_removido
+.globl empty_apartment_out, new_line, tab, ap_num_out, ap_tenants_out, ap_car_out, ap_moto_out, ap_model_out, ap_color_out, unexpected_error1_info, unexpected_error2_info, unexpected_error3_info, ad_auto_ap_vazio, auto_removido, arquivo_n_encontrado
 
 # estas sao funcoes de log, servem para informar erros ou mensagens durante a execucao dos comandos
 # o funcionamento de todas e parecido (os comentarios no primeiro valem para todos os outros, exceto nos que tambem salvam $ra na stack)
@@ -123,6 +124,14 @@ miss_options_fn:                                                        #
     jal print_str                                                       #
     j start                                                             #
 
+arquivo_n_encontrado:
+    la $a0, arquivo_n_encontrado_txt
+    jal print_str
+    la $a0, arquivo
+    jal print_str
+    la $a0, new_line_txt
+    jal print_str
+    j start
 
 new_line:
     la $a0, new_line_txt
