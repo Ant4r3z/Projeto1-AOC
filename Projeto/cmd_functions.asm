@@ -10,7 +10,7 @@
 .data
 help_out: .asciiz "Esta eh a lista dos comandos disponiveis\n    cmd_1. ad_morador-<ap>-<morador>: adiciona um morador ao apartamento\n    cmd_2. rm_morador-<ap>-<morador>: remove um morador do apartamento\n    cmd_3. ad_auto-<ap>-<tipo>-<modelo>-<cor>: adiciona um carro ou uma moto ao apartamento\n    cm4_4. rm_auto-<ap>-<tipo>-<modelo>-<cor>: remove um carro ou uma moto ao apartamento\n    cmd_5. limpar_ap-<ap>: limpa todos os dados de um apartamento\n    cmd_6. info_ap-<ap>: detalha os dados do apartamento\n    cmd_7. info_geral: panorama geral de apartamentos varios e nao vazios\n    cmd_8. salvar: salva os dados do programa em um arquivo externo\n    cmd_9. recarregar: recarrega os dados do arquivo externo\n    cmd_10. formatar: apaga todas as informacoes atuais do programa sem excluir do arquivo\n"                                                                                                                        
 
-arquivo: .asciiz "C:\\arquivos\\output.txt"
+arquivo: .asciiz "C:\\SistemaCondominio\\apartamentos.dat"
 info_geral_out: .asciiz "Nao vazios:    xxxx (xxx%)\nVazios:        xxxx (xxx%)\n"
 
 info_app_all_txt: .asciiz "all"
@@ -25,7 +25,7 @@ limpar_ap_n: .asciiz "Falha: AP invalido\n"
 input_file: .space 1000000
 
 .text
-.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn, limpar_ap_fn, info_geral_fn, formatar_fn, info_ap_fn
+.globl help_fn, ad_morador_fn, rm_morador_fn, ad_auto_fn, salvar_fn, rm_auto_fn, recarregar_fn, limpar_ap_fn, info_geral_fn, formatar_fn, info_ap_fn, arquivo
 
 
 help_fn:                                            # comando help
@@ -294,7 +294,9 @@ salvar_fn:
     li $a1, 1       
     li $a2, 0       
     li $v0, 13      
-    syscall     
+    syscall    
+
+    bltz $v0, arquivo_n_encontrado                          # caso o file descriptor seja -1, o arquivo nao foi encontrado
 
     add $s7, $zero, $v0                                     # file descriptor
 
@@ -406,6 +408,8 @@ recarregar_fn:
     li $a2, 0
     li $v0, 13
     syscall
+
+    bltz $v0, arquivo_n_encontrado                          # caso o file descriptor seja -1, o arquivo nao foi encontrado
 
     add $s7, $zero, $v0                                     # file descriptor
 
