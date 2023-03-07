@@ -84,13 +84,11 @@ print_str:                                                              # imprim
     jr $ra                                                              # return
     
 enter:                                                                  # executado quando a tecla enter eh digitada
-    la $a0, input
-    jal get_str_size
-    beqz $v0, skip_proc_cmd
+    la $a0, input                                                       # endereco de input
+    jal get_str_size                                                    # calcula tamaho da string input
+    beqz $v0, skip_proc_cmd                                             # caso input esteja vazio, não executa o processamento de comando
     jal process_command                                                 # chama a funcao que processa o comando
     skip_proc_cmd:
-    # la $a0, banner                                                      # carrega o endereco do banner
-    # jal print_str                                                       # chama a funcao print string
     j start                                                             # desvia para o inicio do loop mmio
 
 backspace:                                                              # executado quando um backspace eh digitado
