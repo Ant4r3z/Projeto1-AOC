@@ -131,57 +131,57 @@ tab:
 empty_apartment_out:
     la $a0, empty_apartment_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 ap_num_out:
     la $a0, ap_num_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 ap_tenants_out:
     la $a0, ap_tenants_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 ap_car_out:
     la $a0, ap_car_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 ap_moto_out:
     la $a0, ap_moto_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 ap_model_out:
     la $a0, ap_model_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 ap_color_out:
     la $a0, ap_color_txt
     addi $sp, $sp, -4
-    sw $ra, 0($s0)
+    sw $ra, 0($sp)
     jal print_str
-    lw $ra, 0($s0)
+    lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
 unexpected_error1_info:
