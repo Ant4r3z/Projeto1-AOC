@@ -31,16 +31,22 @@ unexpected_error2_info_txt: .asciiz " - Log: Print all apartments\n"
 unexpected_error3_info_txt: .asciiz " - Log: Print one apartments\n"
 
 
-
+ad_auto_ap_vazio_out: .asciiz "Apartamento vazio, nao e possivel adicionar automovel\n"
+auto_removido_out: .asciiz "Automovel removido com sucesso\n"
 
 
 .text
 .globl abort_invalid_ap, abort_exceeding_tenant, abort_no_tenant, abort_tenant_not_found, unexpected_error1_ap, add_morador_conclusion, rm_morador_conclusion, invalid_auto, no_space_auto, salvo, recarregado, auto_adicionado, cmd_invalido_fn, miss_options_fn
-.globl empty_apartment_out, new_line, tab, ap_num_out, ap_tenants_out, ap_car_out, ap_moto_out, ap_model_out, ap_color_out, unexpected_error1_info, unexpected_error2_info, unexpected_error3_info
+.globl empty_apartment_out, new_line, tab, ap_num_out, ap_tenants_out, ap_car_out, ap_moto_out, ap_model_out, ap_color_out, unexpected_error1_info, unexpected_error2_info, unexpected_error3_info, ad_auto_ap_vazio, auto_removido
+
+# estas sao funcoes de log, servem para informar erros ou mensagens durante a execucao dos comandos
+# o funcionamento de todas e parecido (os comentarios no primeiro valem para todos os outros, exceto nos que tambem salvam $ra na stack)
+
+
 abort_invalid_ap:
-    la $a0, abort_invalid_ap_txt
-    jal print_str
-    j start
+    la $a0, abort_invalid_ap_txt            # carrega a string a ser impressa
+    jal print_str                           # chama a funcao print string
+    j start                                 # volta ao inicio do programa (esta instrucao serve para mensagens de erro que abortam a execucao do comando)
 
 abort_exceeding_tenant:
     la $a0, abort_exceeding_tenant_txt
@@ -111,7 +117,7 @@ miss_options_fn:                                                        #
 
 new_line:
     la $a0, new_line_txt
-    addi $sp, $sp, -4
+    addi $sp, $sp, -4           
     sw $ra, 0($sp)
     jal print_str
     lw $ra, 0($sp)
@@ -125,6 +131,19 @@ tab:
     lw $ra, 0($sp)
     addi $sp, $sp, 4
     jr $ra
+
+
+ad_auto_ap_vazio:                                                        #
+    la $a0, ad_auto_ap_vazio_out                                                #
+    jal print_str                                                       #
+    j start                                                             #
+
+auto_removido:                                                        #
+    la $a0, auto_removido_out                                                #
+    jal print_str                                                       #
+    j start                                                             #
+
+
 
 
 # cmd_6

@@ -1,5 +1,5 @@
 .data
-.macro stack_reg
+.macro stack_reg                                                                # salva registradores na stack
     addi $sp, $sp, -48
     sw $t0, 0($sp)
     sw $t1, 4($sp)
@@ -15,7 +15,7 @@
     sw $a3, 44($sp)
 .end_macro
 
-.macro unstack_reg
+.macro unstack_reg                                                      # recupera registradores da stackk
     lw $t0, 0($sp)
     lw $t1, 4($sp)
     lw $t2, 8($sp)
@@ -54,7 +54,7 @@ info_ap: .asciiz "info_ap"
 .globl get_fn_option, free, process_command
 
 process_command:                                                        # funcao que processa o comando do usuario
-stack_reg
+stack_reg                                                               # salva registradores na stack
     la $t0, input                                                       # carrega a string input
     lb $t1, 0($t0)
     beqz $t1, end_process
@@ -119,13 +119,13 @@ stack_reg
 
         j cmd_invalido_fn                                               # default: caso o comando nao corresponda a nenhum caso, comando invalido
     end_process:                                                        # fim da funcao
-        unstack_reg
+        unstack_reg                                                     # recupera registradores da stack
         j start                                                         # inicio do programa, pronto para aguardar um novo comando
 
 
 
 get_fn_option:
-    stack_reg                                                           # 
+    stack_reg                                                               # salva registradores na stack                                                           # 
     add $t0, $zero, $a1                                                 # endereco da string para extrair a opcao
     la $t1, separador                                                   # carreaga o endereco do separador de opcoes
     lb $t1, 0($t1)                                                      # carrega o caracter separador em t1
@@ -165,17 +165,17 @@ get_fn_option:
             jal memcpy                                                  # copia a string para o espaco alocado na memoria
             lw $ra, 0($sp)                                              # recupera return address
             addi $sp, $sp, 4                                            #
-            unstack_reg                                                 #
+            unstack_reg                                                     # recupera registradores da stack                                                 #
             jr $ra                                                      # return
 
     abort_get_fn_op:                                                    # opcao informada nao encontrada
-        unstack_reg                                                     #
+        unstack_reg                                                     # recupera registradores da stack                                                     #
         j miss_options_fn                                               #
         jr $ra                                                          # return 
 
 
 free: # a0: endereco 
-    stack_reg                                                           #
+    stack_reg                                                               # salva registradores na stack                                                           #
     lb $t0, 0($a0)                                                      # carrega o byte em t0
     sb $zero, 0($a0)                                                    # zera o endereco
     addi $a0, $a0, 1                                                    # proximo byte
@@ -183,6 +183,6 @@ free: # a0: endereco
     j free                                                              # loop
 
     end_free:                                                           #
-    unstack_reg                                                         #
+    unstack_reg                                                     # recupera registradores da stack                                                         #
         jr $ra                                                          # retorno
         

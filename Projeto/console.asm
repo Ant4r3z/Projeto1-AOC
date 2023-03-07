@@ -35,15 +35,15 @@ start:
     jal clear_input
     j mmio_loop                                                         # inicia o loop do mmio
 
-clear_input:
-    addi $s1, $s1, -1                                                   
-    lb $t0, 0($s1)
-    beqz $t0, end_clear
-    sb $zero, 0($s1)
-    j clear_input
-    end_clear:
-    	addi $s1, $s1, 1
-        jr $ra
+clear_input:                                                            # limpa a string input
+    addi $s1, $s1, -1                                                   # decrementa um do cursor do input
+    lb $t0, 0($s1)                                                      # carrega o byte
+    beqz $t0, end_clear                                                 # caso seja \n, o input esta vazio
+    sb $zero, 0($s1)                                                    # grava 0 no cursor atual
+    j clear_input                                                       # reinicia o loop
+    end_clear:                  
+    	addi $s1, $s1, 1                                                # avanca um no cursor
+        jr $ra                                                          # retorna
 
 mmio_loop:                                                              # loop do mmio
     lw $t0, 0($s0)                                                      # s1 = receiver ready

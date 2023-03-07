@@ -204,6 +204,9 @@ ad_auto_fn:                                                 # adiciona um automo
 
     add $t4, $t4, $t2                                       # soma o offset ao endereço base
 
+    lw $t9, 4($t4)
+    beqz $t9, ad_auto_ap_vazio
+
     addi $t4, $t4, 28                                       # word do primeiro auto na estrutura ap
 
                
@@ -254,9 +257,9 @@ ad_auto_fn:                                                 # adiciona um automo
         addi $t4, $t4, 4                                    # soma o endereco para a proxima vaga de moto
         j continue_ad_auto                                  # pula para o procedimento de continuar
 
-        there_is_no_moto:       
-        addi $t7, $zero, 2      
-        sw $t7, 8($t4)      
+        there_is_no_moto:                                   # se nao tiver motos
+        addi $t7, $zero, 2                                  # salva a flag 2 (uma moto)
+        sw $t7, 8($t4)                                      # na posicao de flag do apartamento
 
     continue_ad_auto:       
         la $a0, input                                       # Load the address of the string into $a0
@@ -333,9 +336,9 @@ salvar_fn:
             jal get_str_size                                #
 
             move $a0, $s7                                   # escreve a string no arquivo
-            add $a1, $zero, $t5                             #
-            add $a2, $zero, $v0                             #
-            li $v0, 15                                      #
+            add $a1, $zero, $t5                             # endereco
+            add $a2, $zero, $v0                             # numero de bytes
+            li $v0, 15                                      # escreve no arquivo
             syscall                                         #
 
             skip_null_salva_dados:                          # 
@@ -354,10 +357,10 @@ salvar_fn:
 
                 la $t4, buffer_int_to_str                   # salva a flag no arquivo
                 addi $t4, $t4, 3                            # apenas o ultimo byte (a flag vai ate 3)
-                move $a0, $s7                               #
-                add $a1, $zero, $t4                         #
-                addi $a2, $zero, 1                          #
-                li $v0, 15                                  #
+                move $a0, $s7                               # file descriptor
+                add $a1, $zero, $t4                         # endereco do output
+                addi $a2, $zero, 1                          # numero de bytes
+                li $v0, 15                                  # escreve no arquivo
                 syscall                                     #
 
 
@@ -447,7 +450,7 @@ recarregar_fn:
         fim_load_moradores:
             add $a0, $zero, $t0                             # converte a string com a flag de automoveis no buffer do arquivo para inteiro
             jal str_to_int                                  # 
-            sw $v0, 0($t4)                                  # 
+            sw $v0, 0($t4)                                  # salva a flag no apartamento
 
 
             jal find_next_line                              # pula uma linha do arquivo
@@ -596,22 +599,22 @@ rm_auto_fn:                                                 #codigo de remover a
 
         removeu_unico:
             sw $0, 8($t4)                                   # transfere o valor de t4 para a memoria o zerando
-            j start                                         # fim
+            j auto_removido                                         # fim
 
         removeu_moto:                           
             li $t8, 2                                       # carrega a flag de moto em t8
             beq $t9, 0, removeu_primeira_moto               # envia para o chamado de remover primeira moto
             sw $t8, 4($t4)                                  # transfere o valor de t4 para t8 para relacionar com a possibilidade de remover mais de uma moto
-            j start                                         # fim
+            j auto_removido                                         # fim
 
         removeu_primeira_moto:                          
             sw $t8, 8($t4)                                  # carrega o registrador da moto da segunda opção
             lw $t8, 4($t4)                                  # carrega o valor no registrador t8
             sw $zero, 4($t4)                                # carrega a flag 4
             sw $t8, 0($t4)                                  # zera o valor da primeira moto
-            j start                                         # fim
+            j auto_removido                                         # fim
 
-        j start                                             # fim 
+        j auto_removido                                             # fim 
 
     remover_segunda_moto:                           
         addi $t4,$t4, 4                                     # adiciona o valor de mais um veículo   
@@ -859,8 +862,8 @@ info_ap_fn:
 
     info_ap_one:
 
-        addi $sp, $sp, -4
-        sw $ra, 0($sp)
+        addi $sp, $sp, -4                                   # reserva um espaco na stack
+        sw $ra, 0($sp)                                      # armazena ra na stack
 
         print_ap:
 
@@ -913,7 +916,7 @@ info_ap_fn:
             addi $t7, $t4, 36                               # carrega em $t7 o endereço da flag de veículos
             lw $t7, 0($t7)                                  # carrega a word
 
-            # switch
+            # switch: imprime as informacoes de auto dependendo da flag
             beq $t7, 0, flag_0
             beq $t7, 1, flag_1
             beq $t7, 2, flag_2
@@ -998,19 +1001,19 @@ info_ap_fn:
                 lw $a1, 32($t4)                             # passa o endereço guardado no slot de carro
                 jal get_fn_option                       
                 add $a0, $zero, $v0                         # passa a cor como argumento
-                jal print_str
-                jal new_line
+                jal print_str                               # imprime na tela
+                jal new_line                                # pula uma linha
 
-                j end_info_ap_one
+                j end_info_ap_one                           # encerra o comando
                 
 
         empty_apartment:
-            jal empty_apartment_out
+            jal empty_apartment_out                         # imprime 'apartamento vazio"
         
         end_info_ap_one:
             # fim
-            lw $ra, 0($sp)
-            addi $sp, $sp, 4
+            lw $ra, 0($sp)                                  # recupera ra da stack
+            addi $sp, $sp, 4                                # libera espaco da stack
             jr $ra                                          # retorno
 
     info_ap_all:        
